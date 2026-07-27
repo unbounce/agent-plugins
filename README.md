@@ -9,6 +9,15 @@ which brings Unbounce landing-page authoring and management to your assistant.
 > listed in any assistant directory. Access is limited while the connector's
 > sign-in allowlist is in place.
 
+## Plugins
+
+| Plugin | Description | Install |
+| --- | --- | --- |
+| [`unbounce-mcp`](plugins/unbounce-mcp) | Author and manage Unbounce landing pages through the Unbounce MCP server | `/plugin install unbounce-mcp@unbounce` |
+
+Installing is two steps — add the marketplace, then install a plugin from it.
+See [Installing](#installing-internal-validation) for the full commands.
+
 ## Layout
 
 This repository is **multi-package**. It owns its own shell — this `README`, the
