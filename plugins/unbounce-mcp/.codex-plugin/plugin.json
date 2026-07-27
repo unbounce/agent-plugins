@@ -1,0 +1,27 @@
+{
+  "name": "unbounce-mcp",
+  "version": "0.1.249",
+  "description": "Author and manage Unbounce landing pages through Unbounce MCP.",
+  "author": {
+    "name": "Unbounce"
+  },
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Unbounce",
+    "shortDescription": "Author and manage Unbounce landing pages through Unbounce MCP.",
+    "longDescription": "Create, edit, publish, and A/B-test Unbounce landing pages from your assistant, and read their leads and stats — powered by the Unbounce MCP server.",
+    "developerName": "Unbounce",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Create an Unbounce landing page for my new campaign.",
+      "List my Unbounce pages and their conversion rates."
+    ],
+    "screenshots": []
+  }
+}

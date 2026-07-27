@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "unbounce": {
+      "type": "http",
+      "url": "https://mcp.unbounce.com/mcp?experimental=1"
+    }
+  }
+}

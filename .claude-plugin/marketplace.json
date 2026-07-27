@@ -4,5 +4,11 @@
     "name": "Unbounce"
   },
   "description": "Author and manage Unbounce landing pages through Unbounce MCP.",
-  "plugins": []
+  "plugins": [
+    {
+      "name": "unbounce-mcp",
+      "source": "./plugins/unbounce-mcp",
+      "description": "Author and manage Unbounce landing pages through Unbounce MCP."
+    }
+  ]
 }
