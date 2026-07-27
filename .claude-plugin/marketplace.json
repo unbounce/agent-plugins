@@ -1,0 +1,8 @@
+{
+  "name": "unbounce",
+  "owner": {
+    "name": "Unbounce"
+  },
+  "description": "Author and manage Unbounce landing pages through Unbounce MCP.",
+  "plugins": []
+}
