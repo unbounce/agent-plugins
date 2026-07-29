@@ -251,6 +251,46 @@ happens, either remove the `<ub:dynamic>` tag(s) and author plain text, or tell
 the user their plan needs Dynamic Text Replacement to use it — check the plan
 with `get_account_plan`. Already-published DTR pages keep working regardless.
 
+**DTR also works in the page title and meta fields.** `set_page_metadata`'s
+`title`, `description`, and `keywords` accept `<ub:dynamic>` tags — e.g. a
+`<title>` that echoes the ad keyword for paid-search campaigns. The same
+ask-first rule and plan gate apply. The Open Graph fields do **not** take DTR
+(social scrapers fetch the page without campaign parameters anyway).
+
+## Page metadata (SEO & social sharing)
+
+The page `<title>`, meta description, robots noindex, canonical URL, favicon,
+and Open Graph (`og:*`) tags are **page settings, not page HTML**. Writing
+`<title>`/`<meta>`/`<link rel="icon">` tags into the HTML you author does
+nothing useful — your HTML becomes the page **body**, so those tags end up
+inside `<body>` where search engines and social scrapers ignore them. Set them
+with `set_page_metadata`; read them back via `get_variant`'s `metadata` block.
+
+- **Always set a title and description** on a page the user intends to publish
+  — a page without them shows the platform default (or nothing) in search
+  results and social shares. Derive them from the page's offer; keep the title
+  ≲60 characters and the description ≲160 (search results truncate past that).
+- **Open Graph drives the social share card** (Facebook, LinkedIn, Slack,
+  iMessage, …). `type: "website"` is right for landing pages; give it a
+  `title`, `description`, and an `image` (1200×630, under 5 MB, https) — a
+  card without an image renders as bare text. X/Twitter reads these `og:*`
+  tags too, but without a `twitter:card` meta tag it shows the small card —
+  and the platform has **no storage for `twitter:*` tags** (they can't reach
+  the published `<head>`), so don't promise a large Twitter card.
+- **Skip `keywords`.** Google has ignored meta keywords since 2009 and heavy
+  keyword lists can read as a spam signal. Leave it unset unless the user
+  insists.
+- **`hide_from_search_engines: true`** emits a robots noindex — right for
+  campaign pages the user doesn't want in organic search results; ask rather
+  than assume.
+- **Metadata is applied to every active variant by default** (variants share
+  one URL, so divergent titles/OG make the search snippet and share card
+  depend on the traffic split). Target one variant with `letter` only when the
+  user deliberately wants that.
+- **Staged like content**: on a published page the live head keeps its old
+  values until the next `publish_page` — say so when you set metadata on a
+  live page.
+
 ## Reviewing your work
 
 - Read a variant's current content back with `get_variant`.
