@@ -259,12 +259,17 @@ ask-first rule and plan gate apply. The Open Graph fields do **not** take DTR
 
 ## Page metadata (SEO & social sharing)
 
-The page `<title>`, meta description, robots noindex, canonical URL, favicon,
-and Open Graph (`og:*`) tags are **page settings, not page HTML**. Writing
-`<title>`/`<meta>`/`<link rel="icon">` tags into the HTML you author does
-nothing useful — your HTML becomes the page **body**, so those tags end up
-inside `<body>` where search engines and social scrapers ignore them. Set them
-with `set_page_metadata`; read them back via `get_variant`'s `metadata` block.
+The page `<title>`, meta description, robots noindex, favicon, and Open Graph
+(`og:*`) tags are **page settings, not page HTML** — your authored HTML becomes
+the page **body**, where search engines and social scrapers never look for
+them. Set them with `set_page_metadata`; read them back via `get_variant`'s
+`metadata` block. As a safety net, the HTML-authoring tools **auto-extract**
+these head tags from submitted markup and apply them as metadata (reported
+under `head_metadata` in the result) — but on `update_variant_from_html` /
+`create_variant_from_html` that lands on **one variant only**, so prefer
+`set_page_metadata` for deliberate metadata work and to converge variants.
+There is no canonical-URL setting: the platform never emits
+`<link rel="canonical">` on a published page.
 
 - **Always set a title and description** on a page the user intends to publish
   — a page without them shows the platform default (or nothing) in search
@@ -290,6 +295,10 @@ with `set_page_metadata`; read them back via `get_variant`'s `metadata` block.
 - **Staged like content**: on a published page the live head keeps its old
   values until the next `publish_page` — say so when you set metadata on a
   live page.
+- **Head tags with no platform slot** — `twitter:*`, `<link rel="canonical">`,
+  hreflang alternates, `og:*` beyond type/title/description/image/url — cannot
+  reach the published `<head>`; the authoring tools warn when submitted HTML
+  contains them. Don't promise them to the user.
 
 ## Reviewing your work
 
