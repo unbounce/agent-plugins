@@ -85,7 +85,13 @@ CORRECT rewrite (rows → flex; note the section/inner split below):
 
 Numeric values (widths, gaps, padding, font sizes) come from the audit — the
 hint geometry and the source CSS — not from taste. Use `clamp()` or media
-queries for font sizes that would be too large on mobile.
+queries for font sizes that would be too large on mobile. The hints hand you
+these numbers measured: `content_extent.width` is the inner wrapper's
+`max-width`, `row_stats` gives each row's column count, alignment, and
+`gap_above` (the vertical rhythm), and `typography.font_size` anchors the top
+of each `clamp()` range. They are reference values — anchors for the
+responsive rules you author, never desktop literals to pin (see
+[color.md](color.md) for the identity/reference split).
 
 **Preserve sibling order and column assignment.** Rows read left-to-right as
 the hints give them: logo-left + card-right stays [logo | card], even when the

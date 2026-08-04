@@ -73,3 +73,18 @@ them before writing HTML; each names the rule that now catches it.
     fonts from a screenshot, and fabricated image URLs. When you cannot read
     the source, STOP and report — declining is correct; inventing is not.
     _(Source of truth: the imported copy's body, nothing else.)_
+
+15. **Hero's white text promoted to the page default.** The dark hero band's
+    white text became the page-wide default color, so a light section's
+    un-styled paragraphs rendered white-on-white — invisible. The source's
+    actual default was black; no text diff can catch this class. Use
+    `page_defaults.color` as the base and override only the sections whose
+    extracted colors differ; the contrast table flags it deterministically.
+    _(color.md: page default; contrast arithmetic.)_
+
+16. **Decorative accent ballooned to `cover`.** A small box image the source
+    positioned at natural size (no `background-size`) was rewritten as
+    `background-size: cover` — it swamped the section and sat behind the body
+    text. The extracted `background_image` carries the computed sizing model
+    and the natural-vs-rendered size; reproduce it verbatim. _(color.md:
+    background sizing model is content.)_

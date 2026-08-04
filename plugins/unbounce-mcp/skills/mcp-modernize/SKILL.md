@@ -56,15 +56,20 @@ source of truth** for every value: copy strings, image URLs (with their
 tags. Never guess a value, never take one from a screenshot, never reconstruct
 from memory.
 
-**Step 3 — Get the layout skeleton.** `get_layout_hints` on the same variant.
-It returns, per section: `rows` (element ids clustered into visual rows,
-left-to-right), per-element geometry, `cross_section_overlays` (elements whose
-vertical span crosses into later sections), and `design_width` (the fixed
-canvas width). **The rows are your flex/grid structure.** Do not derive
-structure from the absolute coordinates yourself, and never translate `top`/
-`left` values through into the rewrite. If hints come back empty for a variant
-that plainly has a positioned tree, stop and report it (see
-[rules/verification.md](rules/verification.md)).
+**Step 3 — Get the layout skeleton and fidelity signals.** `get_layout_hints`
+on the same variant. It returns, per section: `rows` (element ids clustered
+into visual rows, left-to-right), per-element geometry,
+`cross_section_overlays` (elements whose vertical span crosses into later
+sections), and `design_width` (the fixed canvas width). **The rows are your
+flex/grid structure.** Do not derive structure from the absolute coordinates
+yourself, and never translate `top`/`left` values through into the rewrite.
+It also returns measured fidelity signals — `page_defaults` (the page's real
+base text color and typography), per-section backgrounds, per-element
+colors/typography/text/image/link inventories, `palette`, `loaded_fonts`,
+`row_stats`, `content_extent`, `hidden_elements`. Those are ground truth:
+author from them per [rules/color.md](rules/color.md), never from assumption.
+If hints come back empty for a variant that plainly has a positioned tree,
+stop and report it (see [rules/verification.md](rules/verification.md)).
 
 **Step 4 — Audit, in writing, before any HTML.** Post a compact audit into the
 conversation (it must survive context compaction): per section — the row
@@ -83,7 +88,9 @@ two-pass authoring: pass 1 is a content-identical rewrite, verified; only then
 apply their change (see TWO-PASS in rules/replication.md).
 
 **Step 6 — Self-check before writing back.** Run the checklist in
-[rules/verification.md](rules/verification.md) — text walk, count checks, and
+[rules/verification.md](rules/verification.md) — text walk, count checks, the
+closure checks against the extracted signals (image-src, link-href, palette,
+font sets; the WCAG contrast table from [rules/color.md](rules/color.md)), and
 the hard stops (`position:absolute` budget, zero authored `cbc-*` references,
 flex/grid present, per-section max-width, overlay columns reserved). Fix
 failures before delivering; never rationalize past a hard stop.
@@ -124,5 +131,6 @@ specific, or "none". Publishing, traffic, and goals are the user's call.
 Long-form rules, worked examples, and the catalog of real past failures:
 [rules/replication.md](rules/replication.md) ·
 [rules/layout.md](rules/layout.md) ·
+[rules/color.md](rules/color.md) ·
 [rules/verification.md](rules/verification.md) ·
 [rules/failure-catalog.md](rules/failure-catalog.md)
