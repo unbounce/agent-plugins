@@ -32,9 +32,16 @@ Four consequences of that measurement worth knowing:
   **no** `color` and **no** `typography`. Absence means "nothing renders here",
   not "defaults" — do not author type against it.
 - One source element can hold several type styles (a display headline plus a
-  sub-headline in the same text block). Only the dominant one is reported, so
-  when `text_length` is much larger than the reported excerpt suggests for a
-  single style, read the source body for the rest before sizing headings.
+  sub-headline in the same text block). The two most prominent are reported:
+  `typography` and `secondary_typography`. **Size both** — together they are that
+  block's internal hierarchy (typically a heading and its body copy), and a
+  rewrite that applies only the first flattens it. Neither field names a role:
+  ranking is by painted area (font-size x characters), so the body copy is
+  commonly the one in `typography` and the heading the one in
+  `secondary_typography`. Read the sizes, not the field names, and never average
+  the two. If
+  the block clearly holds more than two styles (`text_length` far exceeds what
+  two styles explain), read the source body for the rest.
 - `typography.line_height` is the leading that governs the dominant node, which
   the source may declare on a block ancestor rather than the node itself.
 - A fully transparent fill is omitted rather than reported: a section with a
