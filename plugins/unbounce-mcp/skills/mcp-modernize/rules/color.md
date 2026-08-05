@@ -21,10 +21,25 @@ The signals split into two kinds, and the split decides how you may use them:
 - font families (`loaded_fonts`, `typography.font_family`)
 
 Per-element `color` and `typography` are measured on the element's **dominant
-text node**, not its positioned container — so they report the type that
-actually renders (e.g. a 92px Oswald heading), not the container's inherited
-page defaults. Where one element paints more than one color, `text_colors`
-lists them all.
+text node** (the one covering the most type area — font-size x characters), not
+its positioned container — so they report the type that actually renders (e.g. a
+100px Oswald heading), not the container's inherited page defaults. Where one
+element paints more than one color, `text_colors` lists them all.
+
+Four consequences of that measurement worth knowing:
+
+- An element that paints no text of its own (an image, a plain box) carries
+  **no** `color` and **no** `typography`. Absence means "nothing renders here",
+  not "defaults" — do not author type against it.
+- One source element can hold several type styles (a display headline plus a
+  sub-headline in the same text block). Only the dominant one is reported, so
+  when `text_length` is much larger than the reported excerpt suggests for a
+  single style, read the source body for the rest before sizing headings.
+- `typography.line_height` is the leading that governs the dominant node, which
+  the source may declare on a block ancestor rather than the node itself.
+- A fully transparent fill is omitted rather than reported: a section with a
+  `background_image` and no `background_color` paints the image, not a color.
+  Never invent a fill for it.
 
 **Reference values — anchors for responsive decisions, never desktop literals
 to reproduce:**
