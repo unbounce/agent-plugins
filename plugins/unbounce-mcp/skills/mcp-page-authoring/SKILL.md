@@ -71,8 +71,7 @@ they asked for.
 
 `upload` and `download` hand you `curl` commands to run locally. If your client
 has no shell or filesystem (a web/desktop chat that only calls tools), you can't
-run them — use the **in-band** pair instead (both are experimental, so the
-connection must include `?experimental=1`):
+run them — use the **in-band** pair instead:
 
 - **`upload_inband`** — pass each file's **text content inline** (an array of
   `{ path, content }`); it returns the same `upload://` references you'd get from
@@ -90,9 +89,8 @@ Constraints, because the bytes travel through the conversation:
   reference its URL, or reuse an existing asset's `cdn_url` from `list_assets`;
   `create_page_from_html` leaves external URLs untouched. `download_inband`
   refuses a binary or over-2 MiB object and tells you to use `download`.
-- **Keep files small.** There's no fixed upload limit, but the request rides the
-  normal transport, so a very large paste will fail — author lean pages. Reading
-  back with `download_inband` caps each object at 2 MiB.
+- **Keep files small.** The request rides the normal transport, so a very large
+  paste will fail — author lean pages.
 - Because your images are always external URLs, keep `check_external_refs` at its
   default (`fatal`) so a dead image URL is caught before the page is created,
   not after publish.
@@ -268,8 +266,6 @@ these head tags from submitted markup and apply them as metadata (reported
 under `head_metadata` in the result) — but on `update_variant_from_html` /
 `create_variant_from_html` that lands on **one variant only**, so prefer
 `set_page_metadata` for deliberate metadata work and to converge variants.
-There is no canonical-URL setting: the platform never emits
-`<link rel="canonical">` on a published page.
 
 - **Always set a title and description** on a page the user intends to publish
   — a page without them shows the platform default (or nothing) in search
@@ -279,9 +275,8 @@ There is no canonical-URL setting: the platform never emits
   iMessage, …). `type: "website"` is right for landing pages; give it a
   `title`, `description`, and an `image` (1200×630, under 5 MB, https) — a
   card without an image renders as bare text. X/Twitter reads these `og:*`
-  tags too, but without a `twitter:card` meta tag it shows the small card —
-  and the platform has **no storage for `twitter:*` tags** (they can't reach
-  the published `<head>`), so don't promise a large Twitter card.
+  tags too, but shows the small card without a `twitter:card` meta tag — which
+  the platform cannot store, so don't promise a large Twitter card.
 - **Skip `keywords`.** Google has ignored meta keywords since 2009 and heavy
   keyword lists can read as a spam signal. Leave it unset unless the user
   insists.
