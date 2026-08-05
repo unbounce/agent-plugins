@@ -17,8 +17,14 @@ The signals split into two kinds, and the split decides how you may use them:
 - image `src` and link `href` strings (extracted via attribute reads — they
   match the source markup exactly, so they string-diff)
 - colors: `page_defaults.color` / `background_color`, per-section
-  `background_color`, per-element `color` / `background_color`
+  `background_color`, per-element `color` / `text_colors` / `background_color`
 - font families (`loaded_fonts`, `typography.font_family`)
+
+Per-element `color` and `typography` are measured on the element's **dominant
+text node**, not its positioned container — so they report the type that
+actually renders (e.g. a 92px Oswald heading), not the container's inherited
+page defaults. Where one element paints more than one color, `text_colors`
+lists them all.
 
 **Reference values — anchors for responsive decisions, never desktop literals
 to reproduce:**
@@ -58,11 +64,22 @@ size. Reproduce the sizing model verbatim:
 
 ## Palette closure
 
-`palette` lists every color the rendered page carries, with usage counts.
+`palette` lists every color the rendered page carries, with usage counts —
+including colors painted by inner nodes, so an element that mixes (say) white
+body text with an accent-colored span contributes both, and also reports them
+on that element as `text_colors`.
+
 Every color literal in your authored CSS must appear in the palette, or be
-explicitly justified in the audit (e.g. a hover state read from source CSS
-that the static render can't show). A color you "remember" or "improve" is a
+explicitly justified in the audit. A color you "remember" or "improve" is a
 replication failure.
+
+The palette describes the **rendered default state** only. These legitimately
+fall outside it and need an audit line rather than a code change:
+
+- `:hover`/`:focus`/`:active` colors — read them from the source CSS; a static
+  render cannot show them
+- colors inside images (the palette covers CSS-painted color, not pixels)
+- colors on elements the render found hidden (see `hidden_elements`)
 
 ## Contrast arithmetic (mandatory self-check)
 
