@@ -45,9 +45,12 @@ are designed to be installed from that ecosystem's plugin directory. There,
 you'll be asked to sign in to Unbounce at install time rather than on first
 tool use.
 
-## Issues and feedback
+## Feedback
 
-Found a bug or have a suggestion? [Open an issue](../../issues) on this
-repository. If the plugin is already installed, you can also just tell your
-assistant: the `unbounce-mcp` plugin includes a `submit_feedback` tool that
-sends your feedback straight to the team.
+Found a bug or have a suggestion? With the plugin installed, just tell your
+assistant and your feedback goes straight to the team. For example:
+
+- "I want to report a bug in the Unbounce plugin"
+- "I'd like to request an Unbounce feature"
+- "Send the Unbounce team some praise"
+- "Something about the Unbounce plugin confused me and I want to flag it"
