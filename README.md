@@ -1,6 +1,6 @@
 # Unbounce agent plugins
 
-The marketplace for **Unbounce's agent plugins** — installable across both the
+The marketplace for **Unbounce's agent plugins**, installable across both the
 Claude (`.claude-plugin/`) and the Codex / ChatGPT (`.agents/`) ecosystems.
 The marketplace identity is `unbounce`; its first plugin is **`unbounce-mcp`**,
 which brings Unbounce landing-page authoring and management to your assistant.
@@ -12,10 +12,10 @@ which brings Unbounce landing-page authoring and management to your assistant.
 | [`unbounce-mcp`](plugins/unbounce-mcp) | Author and manage Unbounce landing pages through the Unbounce MCP server | `/plugin install unbounce-mcp@unbounce` |
 
 Full tool reference for each plugin lives on the
-[docs site](https://unbounce.github.io/agent-plugins/) — for example the
+[docs site](https://unbounce.github.io/agent-plugins/), for example the
 [`unbounce-mcp` tool reference](https://unbounce.github.io/agent-plugins/unbounce-mcp/).
 
-Installing is two steps — add the marketplace, then install a plugin from it.
+Installing is two steps: add the marketplace, then install a plugin from it.
 See [Installing](#installing) for the full commands.
 
 ## Layout
@@ -35,7 +35,7 @@ plugins/<name>/                   # one directory per plugin
 /plugin install unbounce-mcp@unbounce
 ```
 
-The first time a tool runs you'll be asked to sign in to Unbounce — an
+The first time a tool runs you'll be asked to sign in to Unbounce. An
 [Unbounce](https://unbounce.com) account is required.
 
 ### Codex / ChatGPT
@@ -49,5 +49,5 @@ tool use.
 
 Found a bug or have a suggestion? [Open an issue](../../issues) on this
 repository. If the plugin is already installed, you can also just tell your
-assistant — the `unbounce-mcp` plugin includes a `submit_feedback` tool that
+assistant: the `unbounce-mcp` plugin includes a `submit_feedback` tool that
 sends your feedback straight to the team.
