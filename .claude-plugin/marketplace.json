@@ -9,7 +9,8 @@
     {
       "name": "unbounce-mcp",
       "source": "./plugins/unbounce-mcp",
-      "description": "Author and manage Unbounce landing pages through Unbounce MCP."
+      "description": "Author and manage Unbounce landing pages through Unbounce MCP.",
+      "license": "MIT"
     }
   ]
 }
