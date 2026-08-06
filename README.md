@@ -51,6 +51,7 @@ Found a bug or have a suggestion? With the plugin installed, just tell your
 assistant and your feedback goes straight to the team. For example:
 
 - "I want to report a bug in the Unbounce plugin"
-- "I'd like to request an Unbounce feature"
-- "Send the Unbounce team some praise"
+- "I'd like to request a feature for the Unbounce plugin"
+- "I want to send praise about the Unbounce plugin"
 - "Something about the Unbounce plugin confused me and I want to flag it"
+- "I'm having trouble signing in to the Unbounce plugin and want to report it"
