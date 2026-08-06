@@ -1,6 +1,6 @@
 # Unbounce agent plugins
 
-The marketplace for **Unbounce's agent plugins** — installable across both the
+The marketplace for **Unbounce's agent plugins**, installable across both the
 Claude (`.claude-plugin/`) and the Codex / ChatGPT (`.agents/`) ecosystems.
 The marketplace identity is `unbounce`; its first plugin is **`unbounce-mcp`**,
 which brings Unbounce landing-page authoring and management to your assistant.
@@ -12,10 +12,10 @@ which brings Unbounce landing-page authoring and management to your assistant.
 | [`unbounce-mcp`](plugins/unbounce-mcp) | Author and manage Unbounce landing pages through the Unbounce MCP server | `/plugin install unbounce-mcp@unbounce` |
 
 Full tool reference for each plugin lives on the
-[docs site](https://unbounce.github.io/agent-plugins/) — for example the
+[docs site](https://unbounce.github.io/agent-plugins/), for example the
 [`unbounce-mcp` tool reference](https://unbounce.github.io/agent-plugins/unbounce-mcp/).
 
-Installing is two steps — add the marketplace, then install a plugin from it.
+Installing is two steps: add the marketplace, then install a plugin from it.
 See [Installing](#installing) for the full commands.
 
 ## Layout
@@ -35,7 +35,7 @@ plugins/<name>/                   # one directory per plugin
 /plugin install unbounce-mcp@unbounce
 ```
 
-The first time a tool runs you'll be asked to sign in to Unbounce — an
+The first time a tool runs you'll be asked to sign in to Unbounce. An
 [Unbounce](https://unbounce.com) account is required.
 
 ### Codex / ChatGPT
@@ -45,9 +45,13 @@ are designed to be installed from that ecosystem's plugin directory. There,
 you'll be asked to sign in to Unbounce at install time rather than on first
 tool use.
 
-## Issues and feedback
+## Feedback
 
-Found a bug or have a suggestion? [Open an issue](../../issues) on this
-repository. If the plugin is already installed, you can also just tell your
-assistant — the `unbounce-mcp` plugin includes a `submit_feedback` tool that
-sends your feedback straight to the team.
+Found a bug or have a suggestion? With the plugin installed, just tell your
+assistant and your feedback goes straight to the team. For example:
+
+- "I want to report a bug in the Unbounce plugin"
+- "I'd like to request a feature for the Unbounce plugin"
+- "I want to send praise about the Unbounce plugin"
+- "Something about the Unbounce plugin confused me and I want to flag it"
+- "I'm having trouble signing in to the Unbounce plugin and want to report it"
