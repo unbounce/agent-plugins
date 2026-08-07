@@ -184,7 +184,7 @@ handling described above.
   snippet (or the reference page's markup) reproduced verbatim — never
   interpolate unsanitised user-supplied or URL-derived values into it.
 - **Say what the user gives up.** A JS-injected form bypasses Unbounce lead
-  capture entirely: no leads in Unbounce, `list_leads` stays empty, no
+  capture entirely: no leads in Unbounce, no
   conversion tracking, and `get_variant` reports `has_form: false`. Submissions
   exist only in the external system. (`has_form` is derived from the authored
   HTML source, so it is deterministically false for an injected form — that's
