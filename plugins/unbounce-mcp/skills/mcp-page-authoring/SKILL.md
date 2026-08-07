@@ -151,6 +151,14 @@ existing page). Use it to have the goal conversation:
   `mailto:` can't be goals (platform rule).
 - **Turning the form goal off** (`form_submission: false`) still captures every
   lead; it just stops counting submissions as conversions.
+- **Link/phone goals don't show in the Unbounce builder's Conversion Goals
+  panel** — but they _are_ tracked. That panel lists only builder-native elements
+  (form, button, image, linked text box), and an MCP-authored page is a single
+  custom-HTML element, so its anchors never appear there even though a click on
+  the published page counts as a conversion. If a user asks why a link goal is
+  "missing" in the builder, that's expected: manage these goals here with
+  `set_conversion_goals`, not in the builder (editing goals in the builder can
+  drop them). The form goal is unaffected — a form is builder-native.
 - **Changing goals on a published page** redefines its conversion rate
   mid-history. Relay the tool's stats note: `reset_page_stats` gives a clean
   baseline if the user wants one (destructive — their call).
