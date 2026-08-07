@@ -40,10 +40,16 @@ The first time a tool runs you'll be asked to sign in to Unbounce. An
 
 ### Codex / ChatGPT
 
-The plugins here also ship a Codex / ChatGPT manifest (`.agents/plugins/`) and
-are designed to be installed from that ecosystem's plugin directory. There,
-you'll be asked to sign in to Unbounce at install time rather than on first
-tool use.
+The plugins here also ship a Codex / ChatGPT manifest (`.agents/plugins/`).
+Add the marketplace with the Codex CLI:
+
+```
+codex plugin marketplace add unbounce/agent-plugins
+```
+
+Then open **Plugins** in the ChatGPT desktop app, install `unbounce-mcp` from
+the directory, and restart the app. You'll be asked to sign in to Unbounce at
+install time rather than on first tool use.
 
 ## Feedback
 
