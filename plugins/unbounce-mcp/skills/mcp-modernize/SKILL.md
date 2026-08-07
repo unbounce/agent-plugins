@@ -43,10 +43,12 @@ MCP-managed), tell the user in one line what is about to happen — e.g. _"I'll
 create an editable copy of your page, then make that copy responsive — your
 original stays untouched"_ — then run `create_variant_from_existing_variant`
 (no `target_page` ⇒ new page). No further permission ceremony is needed; the
-copy is additive and safe. Relay any conversion warnings honestly. If the
-converter refuses (e.g. a legacy fixed-width "autoscale" page), tell the user
-that page type isn't supported yet — don't attempt a workaround. If the target
-is already an MCP-managed imported copy, skip straight to Step 2.
+copy is additive and safe. Relay any conversion warnings honestly. A
+fixed-width "autoscale" source converts fine — the conversion report notes that
+runtime viewport scaling isn't preserved; that is expected and harmless here,
+because you rewrite the page responsive from scratch (Step 4), discarding the
+scaling entirely. If the target is already an MCP-managed imported copy, skip
+straight to Step 2.
 
 **Step 2 — Read the copy.** `get_variant` on the imported variant. Download the
 `html_ref` / `css_refs` / `js_refs` sources (via `download`, or
@@ -54,7 +56,11 @@ is already an MCP-managed imported copy, skip straight to Step 2.
 source of truth** for every value: copy strings, image URLs (with their
 `srcset`), `@font-face` blocks, colors, dimensions, form fields, `<ub:dynamic>`
 tags. Never guess a value, never take one from a screenshot, never reconstruct
-from memory.
+from memory. If the copy came from an autoscale source, its CSS wraps lengths in
+`calc(<px> * var(--scale, 1))` and it may carry a viewport scale script —
+ignore both: read the plain px value (the `* var(--scale)` is the fixed-width
+scaling you are removing) and never copy the scale script into the rewrite. Your
+responsive layout comes from the Step 3 rows, not these fixed dimensions.
 
 **Step 3 — Get the layout skeleton and fidelity signals.** `get_layout_hints`
 on the same variant. It returns, per section: `rows` (element ids clustered
