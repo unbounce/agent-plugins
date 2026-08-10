@@ -67,6 +67,17 @@ they asked for.
   bundle and data URIs are rehosted for you; identical bytes are de-duplicated
   automatically against the client's asset library.
 
+- **An image's bytes must match its extension.** The file extension declares the
+  type an asset is stored and served as, so the bytes are checked against it: a PNG
+  named `.svg`, or anything that isn't a real image, is refused rather than stored
+  under the wrong type. Name files for what they actually are.
+
+- **SVGs must be static artwork.** An SVG is served as a live document, so one
+  carrying `<script>`, an `on…=` event handler, a `<foreignObject>`, a
+  `javascript:` URL, or an external `href` is refused. Ordinary exported artwork —
+  including animated SVG — is fine. If an SVG is rejected, flatten it on export or
+  use a PNG.
+
 ## Authoring from a client that can't run shell commands
 
 `upload` and `download` hand you `curl` commands to run locally. If your client
