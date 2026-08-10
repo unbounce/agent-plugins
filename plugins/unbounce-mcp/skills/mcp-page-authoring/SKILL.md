@@ -67,6 +67,15 @@ they asked for.
   bundle and data URIs are rehosted for you; identical bytes are de-duplicated
   automatically against the client's asset library.
 
+- **One upload call per bundle.** Every `upload` / `upload_inband` call creates a
+  fresh upload folder, and a relative reference inside your HTML/CSS (e.g.
+  `src="page.js"`, `url(images/hero.png)`) resolves only within the HTML's own
+  folder — so upload the HTML together with everything it references by relative
+  path in one call. Refs from different calls still work anywhere a tool takes an
+  explicit `upload://` reference (`html_ref` / `css_refs` / `js_refs`, or written
+  in full inside the markup); refs are immutable snapshots, so re-uploading a file
+  never changes what an earlier ref points to.
+
 - **An image's bytes must match its extension.** The file extension declares the
   type an asset is stored and served as, so the bytes are checked against it: a PNG
   named `.svg`, or anything that isn't a real image, is refused rather than stored
