@@ -105,6 +105,16 @@ Constraints, because the bytes travel through the conversation:
   author — no plumbing needed. If you don't handle the post-submit experience
   yourself, a default confirmation dialog is shown. To customize it, register a
   post-submit handler — see the next bullet for the one way that works.
+- **Leads stay in Unbounce — integrations don't receive form fields yet.** A
+  known platform limitation: the field mapping Unbounce integrations use
+  (webhooks/Zapier, CRM and email connectors) is derived from a builder-native
+  form element, which an MCP-authored page doesn't have. Leads are captured in
+  full and visible/exportable in Unbounce, but an attached webhook receives
+  only page data (page URL, IP, submission date/time) — none of the form
+  fields — and the webhook dialog's "Map Fields" list is empty. If the user's
+  flow depends on automatically forwarding each lead to a CRM or webhook, say
+  so up front before building; downloading or reading leads from Unbounce is
+  the interim path.
 - **Register post-submit handlers with `.push(fn)`, never `= fn`.** The published
   runtime stores `window.ub.hooks.afterFormSubmit` as an **array** and invokes it
   with `Promise.all(hooks.map(h => h(...)))`. Assigning a function replaces the
@@ -188,9 +198,12 @@ handling described above.
   conversion tracking, and `get_variant` reports `has_form: false`. Submissions
   exist only in the external system. (`has_form` is derived from the authored
   HTML source, so it is deterministically false for an injected form — that's
-  expected, not a defect.) State this trade-off when you propose the approach —
-  the user may prefer the built-in form plus a separate CRM integration
-  instead.
+  expected, not a defect.) State this trade-off when you propose the approach.
+  Don't counter-propose "built-in form plus an Unbounce CRM/webhook
+  integration": integrations don't receive form fields from MCP-authored forms
+  (see the limitation above), so if the external system must receive each lead
+  automatically, the JS-injected vendor form is the approach that delivers it
+  today.
 - **`afterFormSubmit` hooks never fire for an external form.** The
   `window.ub.hooks` machinery only runs for Unbounce-captured forms. Build the
   post-submit experience (thank-you message or redirect) into your own code, the
