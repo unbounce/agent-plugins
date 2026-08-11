@@ -24,6 +24,29 @@ This covers **MCP-authored pages only**, and the split is exclusive both ways:
   Unbounce builder/editor" — they cannot. Every edit goes through these MCP
   tools: the user asks for the change, or supplies updated HTML.
 
+## Updating a variant: HTML/CSS replace, JS is left alone
+
+`update_variant_from_html` full-replaces the body HTML and the stylesheet, so
+send every stylesheet the variant should keep on every call. **JavaScript is the
+exception: omit `js_refs` and the variant's existing custom-JavaScript elements
+are kept**, reported back as `scripts_preserved`.
+
+That matters because a variant can carry scripts nobody authored through these
+tools — an **Unbounce popup** attaches itself as one. So:
+
+- Editing HTML or CSS? Just omit `js_refs`. The popup and anything like it
+  survive, and you don't need to know they were there.
+- Changing the scripts? Pass `js_refs` with the desired set — it replaces the
+  scripts that have bodies. The source of whatever it replaced comes back in
+  `removed_scripts`, so re-send anything that should have stayed. A
+  `<script src=…>`-only script is kept even here: a js file can only carry a
+  body, so there was no way for you to restate it.
+- Removing every script is deliberate: pass `js_refs: []`.
+
+`get_variant` returns editable scripts as `js_refs` streams. A script that is
+only a `src` include has no body to edit, so it appears under
+`scripts_not_editable` instead — read-only, and kept for you either way.
+
 ## Conversion-focused structure
 
 A landing page exists to convert — design toward that goal affirmatively, not
