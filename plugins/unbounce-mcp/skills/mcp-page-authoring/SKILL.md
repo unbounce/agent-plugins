@@ -40,8 +40,10 @@ tools — an **Unbounce popup** attaches itself as one. So:
   replaces all of them, including external includes. Whatever it drops comes
   back in `removed_scripts`. Those entries — and the `scripts_preserved` ones —
   are already in `scripts` entry form: pass one straight back to restore it,
-  unchanged, no translation. An include appears as `src` (with `async` / `defer`
-  if it had them); everything else as `tag`. Read the variant first
+  unchanged, no translation. A plain include appears as `src` (with `async` /
+  `defer` if it had them); everything else — including an include whose tag
+  carries other attributes, such as a `data-*`-configured analytics embed — comes
+  back as verbatim `tag`. Read the variant first
   (`get_variant`) if you don't know what's there.
 - Removing every script is deliberate: pass `scripts: []`.
 
