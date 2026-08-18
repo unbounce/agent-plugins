@@ -239,6 +239,29 @@ existing page). Use it to have the goal conversation:
   any new candidate URLs or orphaned goals; you only need `set_conversion_goals`
   when the _set_ should change.
 
+## Google Analytics click tracking — add it on every page
+
+When a page's domain has the Google Analytics integration on, the published page
+already tracks pageviews and form submissions — but **not clicks on links**,
+because Unbounce's built-in GA link tracker only attaches to elements the Unbounce
+builder produces, which an MCP page (hand-written `<a>` tags) doesn't have. Close
+that gap on every page you author:
+
+- **Include [`scripts/ga-click-tracking.js`](scripts/ga-click-tracking.js) as a
+  `scripts` entry** (name it e.g. "GA click tracking", default `body_bottom`).
+  Read the file and pass its contents verbatim — don't hand-roll your own. It
+  wires every `<a>` and emits builder-matching GA events.
+- **It's safe by default.** The script feature-detects `gtag`/`ga` and no-ops when
+  the domain has no GA integration, so add it unconditionally — that's why it's
+  default-on, not something to ask about.
+- **Never add the GA loader** (`gtag.js` / `analytics.js` / a `gtag('config', …)`
+  call). GA is injected by Script Manager; a second loader double-counts
+  pageviews. This script only sends events.
+
+The why, the guardrails, and the maintenance note live in
+[rules/google-analytics.md](rules/google-analytics.md) — read it if you need to
+explain the behaviour or hit an edge case.
+
 ## Third-party form endpoints (Insightly, Marketo, HubSpot, Pardot, …)
 
 Sometimes the form must POST leads to an external system — the user is cloning a
