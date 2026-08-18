@@ -38,9 +38,11 @@ tools — an **Unbounce popup** attaches itself as one. So:
   survive, and you don't need to know they were there.
 - Changing the scripts? Pass `scripts` with the **complete** desired set — it
   replaces all of them, including external includes. Whatever it drops comes
-  back in `removed_scripts`, ready to re-send; an include is flagged `external`
-  and carries its `src`. Read the variant first (`get_variant`) if you don't
-  know what's there.
+  back in `removed_scripts`. Those entries — and the `scripts_preserved` ones —
+  are already in `scripts` entry form: pass one straight back to restore it,
+  unchanged, no translation. An include appears as `src` (with `async` / `defer`
+  if it had them); everything else as `tag`. Read the variant first
+  (`get_variant`) if you don't know what's there.
 - Removing every script is deliberate: pass `scripts: []`.
 
 ## Writing a `scripts` entry
