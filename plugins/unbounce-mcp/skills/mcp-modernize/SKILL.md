@@ -51,7 +51,7 @@ scaling entirely. If the target is already an MCP-managed imported copy, skip
 straight to Step 2.
 
 **Step 2 — Read the copy.** `get_variant` on the imported variant. Download the
-`html_ref` / `css_refs` / `js_refs` sources (via `download`, or
+`html_ref` / `css_refs` sources and any `scripts` entry's `ref` (via `download`, or
 `download_inband` if you cannot run shell commands). This body is the **sole
 source of truth** for every value: copy strings, image URLs (with their
 `srcset`), `@font-face` blocks, colors, dimensions, form fields, `<ub:dynamic>`

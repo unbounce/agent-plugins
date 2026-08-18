@@ -28,24 +28,49 @@ This covers **MCP-authored pages only**, and the split is exclusive both ways:
 
 `update_variant_from_html` full-replaces the body HTML and the stylesheet, so
 send every stylesheet the variant should keep on every call. **JavaScript is the
-exception: omit `js_refs` and the variant's existing custom-JavaScript elements
+exception: omit `scripts` and the variant's existing custom-JavaScript elements
 are kept**, reported back as `scripts_preserved`.
 
 That matters because a variant can carry scripts nobody authored through these
 tools — an **Unbounce popup** attaches itself as one. So:
 
-- Editing HTML or CSS? Just omit `js_refs`. The popup and anything like it
+- Editing HTML or CSS? Just omit `scripts`. The popup and anything like it
   survive, and you don't need to know they were there.
-- Changing the scripts? Pass `js_refs` with the desired set — it replaces the
-  scripts that have bodies. The source of whatever it replaced comes back in
-  `removed_scripts`, so re-send anything that should have stayed. A
-  `<script src=…>`-only script is kept even here: a js file can only carry a
-  body, so there was no way for you to restate it.
-- Removing every script is deliberate: pass `js_refs: []`.
+- Changing the scripts? Pass `scripts` with the **complete** desired set — it
+  replaces all of them, including external includes. Whatever it drops comes
+  back in `removed_scripts`, ready to re-send; an include is flagged `external`
+  and carries its `src`. Read the variant first (`get_variant`) if you don't
+  know what's there.
+- Removing every script is deliberate: pass `scripts: []`.
 
-`get_variant` returns editable scripts as `js_refs` streams. A script that is
-only a `src` include has no body to edit, so it appears under
-`scripts_not_editable` instead — read-only, and kept for you either way.
+## Writing a `scripts` entry
+
+Each entry is one custom-JavaScript element. Use exactly one of:
+
+- **`ref`** — an `upload://` reference to a .js file. Its text is the script
+  body; don't wrap it in `<script>` tags. A bare string entry is shorthand for
+  this.
+- **`src`** — an absolute http(s) URL to include, for a third-party embed: an
+  Unbounce popup (`https://<id>.js.ubembed.com`), a tag manager, a chat widget, a
+  pixel. Add `async` / `defer` here if the vendor's snippet has them. This is the
+  right form when the user hands you a `<script src=…>` tag.
+- **`tag`** — verbatim `<script>` markup, for what the other two can't say: a
+  `type="module"` script, a tag with both a `src` and a body, or several tags
+  that belong together.
+
+Add `name` (what the user calls it — it labels the element in Unbounce's Custom
+JavaScripts panel) and `placement` (`head`, `body_top`, or `body_bottom`,
+default). Consent managers, tag managers, and anti-flicker snippets belong in
+`head`; most other things are fine at the default.
+
+`get_variant` returns every script in the matching form, so you can read, edit,
+and re-submit any of them unchanged.
+
+**A `<script>` in the body HTML does run on the published page** — it is stored
+verbatim in the Custom HTML block and served as real markup. But it lands
+body-placed, unnamed, and invisible in the builder's Custom JavaScripts panel, so
+prefer a `scripts` entry whenever the user names the script or asks for a
+particular placement.
 
 ## Conversion-focused structure
 
@@ -95,7 +120,8 @@ they asked for.
   `src="page.js"`, `url(images/hero.png)`) resolves only within the HTML's own
   folder — so upload the HTML together with everything it references by relative
   path in one call. Refs from different calls still work anywhere a tool takes an
-  explicit `upload://` reference (`html_ref` / `css_refs` / `js_refs`, or written
+  explicit `upload://` reference (`html_ref` / `css_refs` / a `scripts` entry's
+  `ref`, or written
   in full inside the markup); refs are immutable snapshots, so re-uploading a file
   never changes what an earlier ref points to.
 
@@ -119,7 +145,7 @@ run them — use the **in-band** pair instead:
 - **`upload_inband`** — pass each file's **text content inline** (an array of
   `{ path, content }`); it returns the same `upload://` references you'd get from
   `upload`. Wire those to `create_page_from_html` / `create_variant_from_html` /
-  `update_variant_from_html`'s `html_ref` / `css_refs` / `js_refs` exactly as
+  `update_variant_from_html`'s `html_ref` / `css_refs` / `scripts` exactly as
   usual — those tools don't change.
 - **`download_inband`** — pass the `upload://` references from `get_variant` (or
   `upload_inband`) and it returns the content **inline in the result**, so you can
@@ -350,7 +376,7 @@ under `head_metadata` in the result) — but on `update_variant_from_html` /
 
 - Read a variant's current content back with `get_variant`.
 - **Previewing locally:** the source refs `get_variant` returns (`html_ref` /
-  `css_refs` / `js_refs`) are streams of one page and do **not** render
+  `css_refs` / a `scripts` entry's `ref`) are streams of one page and do **not** render
   individually — `body.html` opened alone shows an unstyled fragment. For a
   local preview, fetch the also-returned **`preview_ref`** (`preview.html`, via
   `download` or `download_inband`) and open that file: it is a standalone
