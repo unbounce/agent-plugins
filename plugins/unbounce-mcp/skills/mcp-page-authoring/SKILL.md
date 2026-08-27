@@ -119,6 +119,18 @@ they asked for.
   bundle and data URIs are rehosted for you; identical bytes are de-duplicated
   automatically against the client's asset library.
 
+- **Rehosting does not reach every data URI — check `inline_assets`.** An image or
+  font data URI is extracted from your markup and your CSS. It is **not** extracted
+  from JavaScript: a payload in a script body is reported, never rewritten. Neither
+  is one in the verbatim markup of a `{ tag }` script entry, which is yours and
+  supplied whole. **Audio and video are never extracted** either, because the asset
+  store refuses them (BD-13366 tracks the upstream change that would allow it, and
+  fonts are blocked on the same map). Anything left inline is listed in the result's
+  `inline_assets`, with a note telling you what to do. Treat a non-empty list as
+  work: those bytes ship inside the page on **every** request, cannot be cached or
+  served by the CDN, and are billed as egress for as long as the page is live.
+  Upload the file and reference its URL instead.
+
 - **One upload call per bundle.** Every `upload` / `upload_inband` call creates a
   fresh upload folder, and a relative reference inside your HTML/CSS (e.g.
   `src="page.js"`, `url(images/hero.png)`) resolves only within the HTML's own
