@@ -24,6 +24,58 @@ This covers **MCP-authored pages only**, and the split is exclusive both ways:
   Unbounce builder/editor" — they cannot. Every edit goes through these MCP
   tools: the user asks for the change, or supplies updated HTML.
 
+## Updating a variant: HTML/CSS replace, JS is left alone
+
+`update_variant_from_html` full-replaces the body HTML and the stylesheet, so
+send every stylesheet the variant should keep on every call. **JavaScript is the
+exception: omit `scripts` and the variant's existing custom-JavaScript elements
+are kept**, reported back as `scripts_preserved`.
+
+That matters because a variant can carry scripts nobody authored through these
+tools — an **Unbounce popup** attaches itself as one. So:
+
+- Editing HTML or CSS? Just omit `scripts`. The popup and anything like it
+  survive, and you don't need to know they were there.
+- Changing the scripts? Pass `scripts` with the **complete** desired set — it
+  replaces all of them, including external includes. Whatever it drops comes
+  back in `removed_scripts`. Those entries — and the `scripts_preserved` ones —
+  are already in `scripts` entry form: pass one straight back to restore it,
+  unchanged, no translation. A plain include appears as `src` (with `async` /
+  `defer` if it had them); everything else — including an include whose tag
+  carries other attributes, such as a `data-*`-configured analytics embed — comes
+  back as verbatim `tag`. Read the variant first
+  (`get_variant`) if you don't know what's there.
+- Removing every script is deliberate: pass `scripts: []`.
+
+## Writing a `scripts` entry
+
+Each entry is one custom-JavaScript element. Use exactly one of:
+
+- **`ref`** — an `upload://` reference to a .js file. Its text is the script
+  body; don't wrap it in `<script>` tags. A bare string entry is shorthand for
+  this.
+- **`src`** — an absolute http(s) URL to include, for a third-party embed: an
+  Unbounce popup (`https://<id>.js.ubembed.com`), a tag manager, a chat widget, a
+  pixel. Add `async` / `defer` here if the vendor's snippet has them. This is the
+  right form when the user hands you a `<script src=…>` tag.
+- **`tag`** — verbatim `<script>` markup, for what the other two can't say: a
+  `type="module"` script, a tag with both a `src` and a body, or several tags
+  that belong together.
+
+Add `name` (what the user calls it — it labels the element in Unbounce's Custom
+JavaScripts panel) and `placement` (`head`, `body_top`, or `body_bottom`,
+default). Consent managers, tag managers, and anti-flicker snippets belong in
+`head`; most other things are fine at the default.
+
+`get_variant` returns every script in the matching form, so you can read, edit,
+and re-submit any of them unchanged.
+
+**A `<script>` in the body HTML does run on the published page** — it is stored
+verbatim in the Custom HTML block and served as real markup. But it lands
+body-placed, unnamed, and invisible in the builder's Custom JavaScripts panel, so
+prefer a `scripts` entry whenever the user names the script or asks for a
+particular placement.
+
 ## Conversion-focused structure
 
 A landing page exists to convert — design toward that goal affirmatively, not
@@ -67,6 +119,41 @@ they asked for.
   bundle and data URIs are rehosted for you; identical bytes are de-duplicated
   automatically against the client's asset library.
 
+- **Rehosting does not reach every data URI — check `inline_assets`.** An image or
+  font data URI is extracted from your markup, your CSS, and from a plainly quoted
+  JavaScript string literal (`img.src = "data:image/png;base64,…"`). It is **not**
+  extracted from a template literal, a value built by concatenation, a comment, or
+  the verbatim markup of a `{ tag }` script entry — a rewrite there cannot be proven
+  safe, and `{ tag }` markup is yours, supplied whole, so it is never edited for
+  you. **Audio and video are never extracted** either, because the asset store
+  refuses them (BD-13366 tracks the upstream change that would allow it, and fonts
+  are blocked on the same map). Anything left inline is listed in the result's
+  `inline_assets`, with a note telling you what to do. Treat a non-empty list as
+  work: those bytes ship inside the page on **every** request, cannot be cached or
+  served by the CDN, and are billed as egress for as long as the page is live.
+  Upload the file and reference its URL instead.
+
+- **One upload call per bundle.** Every `upload` / `upload_inband` call creates a
+  fresh upload folder, and a relative reference inside your HTML/CSS (e.g.
+  `src="page.js"`, `url(images/hero.png)`) resolves only within the HTML's own
+  folder — so upload the HTML together with everything it references by relative
+  path in one call. Refs from different calls still work anywhere a tool takes an
+  explicit `upload://` reference (`html_ref` / `css_refs` / a `scripts` entry's
+  `ref`, or written
+  in full inside the markup); refs are immutable snapshots, so re-uploading a file
+  never changes what an earlier ref points to.
+
+- **An image's bytes must match its extension.** The file extension declares the
+  type an asset is stored and served as, so the bytes are checked against it: a PNG
+  named `.svg`, or anything that isn't a real image, is refused rather than stored
+  under the wrong type. Name files for what they actually are.
+
+- **SVGs must be static artwork.** An SVG is served as a live document, so one
+  carrying `<script>`, an `on…=` event handler, a `<foreignObject>`, a
+  `javascript:` URL, or an external `href` is refused. Ordinary exported artwork —
+  including animated SVG — is fine. If an SVG is rejected, flatten it on export or
+  use a PNG.
+
 ## Authoring from a client that can't run shell commands
 
 `upload` and `download` hand you `curl` commands to run locally. If your client
@@ -76,7 +163,7 @@ run them — use the **in-band** pair instead:
 - **`upload_inband`** — pass each file's **text content inline** (an array of
   `{ path, content }`); it returns the same `upload://` references you'd get from
   `upload`. Wire those to `create_page_from_html` / `create_variant_from_html` /
-  `update_variant_from_html`'s `html_ref` / `css_refs` / `js_refs` exactly as
+  `update_variant_from_html`'s `html_ref` / `css_refs` / `scripts` exactly as
   usual — those tools don't change.
 - **`download_inband`** — pass the `upload://` references from `get_variant` (or
   `upload_inband`) and it returns the content **inline in the result**, so you can
@@ -151,12 +238,43 @@ existing page). Use it to have the goal conversation:
   `mailto:` can't be goals (platform rule).
 - **Turning the form goal off** (`form_submission: false`) still captures every
   lead; it just stops counting submissions as conversions.
+- **Link/phone goals don't show in the Unbounce builder's Conversion Goals
+  panel** — but they _are_ tracked. That panel lists only builder-native elements
+  (form, button, image, linked text box), and an MCP-authored page is a single
+  custom-HTML element, so its anchors never appear there even though a click on
+  the published page counts as a conversion. If a user asks why a link goal is
+  "missing" in the builder, that's expected: manage these goals here with
+  `set_conversion_goals`, not in the builder (editing goals in the builder can
+  drop them). The form goal is unaffected — a form is builder-native.
 - **Changing goals on a published page** redefines its conversion rate
   mid-history. Relay the tool's stats note: `reset_page_stats` gives a clean
   baseline if the user wants one (destructive — their call).
 - Goals persist across edits automatically — updates re-apply them and report
   any new candidate URLs or orphaned goals; you only need `set_conversion_goals`
   when the _set_ should change.
+
+## Google Analytics click tracking — add it on every page
+
+When a page's domain has the Google Analytics integration on, the published page
+already tracks pageviews and form submissions — but **not clicks on links**,
+because Unbounce's built-in GA link tracker only attaches to elements the Unbounce
+builder produces, which an MCP page (hand-written `<a>` tags) doesn't have. Close
+that gap on every page you author:
+
+- **Include [`scripts/ga-click-tracking.js`](scripts/ga-click-tracking.js) as a
+  `scripts` entry** (name it e.g. "GA click tracking", default `body_bottom`).
+  Read the file and pass its contents verbatim — don't hand-roll your own. It
+  wires every `<a>` and emits builder-matching GA events.
+- **It's safe by default.** The script feature-detects `gtag`/`ga` and no-ops when
+  the domain has no GA integration, so add it unconditionally — that's why it's
+  default-on, not something to ask about.
+- **Never add the GA loader** (`gtag.js` / `analytics.js` / a `gtag('config', …)`
+  call). GA is injected by Script Manager; a second loader double-counts
+  pageviews. This script only sends events.
+
+The why, the guardrails, and the maintenance note live in
+[rules/google-analytics.md](rules/google-analytics.md) — read it if you need to
+explain the behaviour or hit an edge case.
 
 ## Third-party form endpoints (Insightly, Marketo, HubSpot, Pardot, …)
 
@@ -176,7 +294,7 @@ handling described above.
   snippet (or the reference page's markup) reproduced verbatim — never
   interpolate unsanitised user-supplied or URL-derived values into it.
 - **Say what the user gives up.** A JS-injected form bypasses Unbounce lead
-  capture entirely: no leads in Unbounce, `list_leads` stays empty, no
+  capture entirely: no leads in Unbounce, no
   conversion tracking, and `get_variant` reports `has_form: false`. Submissions
   exist only in the external system. (`has_form` is derived from the authored
   HTML source, so it is deterministically false for an injected form — that's
@@ -299,7 +417,7 @@ under `head_metadata` in the result) — but on `update_variant_from_html` /
 
 - Read a variant's current content back with `get_variant`.
 - **Previewing locally:** the source refs `get_variant` returns (`html_ref` /
-  `css_refs` / `js_refs`) are streams of one page and do **not** render
+  `css_refs` / a `scripts` entry's `ref`) are streams of one page and do **not** render
   individually — `body.html` opened alone shows an unstyled fragment. For a
   local preview, fetch the also-returned **`preview_ref`** (`preview.html`, via
   `download` or `download_inband`) and open that file: it is a standalone
