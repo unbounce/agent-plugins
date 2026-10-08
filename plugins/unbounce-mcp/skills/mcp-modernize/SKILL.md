@@ -101,10 +101,67 @@ the hard stops (`position:absolute` budget, zero authored `cbc-*` references,
 flex/grid present, per-section max-width, overlay columns reserved). Fix
 failures before delivering; never rationalize past a hard stop.
 
+**Step 6b — Carry GA click tracking across.** A Classic page's link clicks are
+tracked by Unbounce's built-in GA link tracker, which keys off builder elements.
+Your rewrite is hand-written `<a>` tags, so that tracker stops attaching and the
+customer silently loses click data they had before. Preserving it is replication
+fidelity, not a redesign — so include
+[`../mcp-page-authoring/scripts/ga-click-tracking.js`](../mcp-page-authoring/scripts/ga-click-tracking.js)
+as a `scripts` entry (name it e.g. "GA click tracking", placement `body_bottom`).
+Never fork or hand-roll it. It feature-detects `gtag`/`ga` and no-ops on domains
+without the integration, so it is safe to add unconditionally.
+
+**Send it as a `ref`, not a `tag`.** Read the file, `upload` it, and pass the
+`upload://` reference it returns as the entry's `ref` — see
+[Writing a `scripts` entry](../mcp-page-authoring/SKILL.md#writing-a-scripts-entry).
+"Pass its contents verbatim" is not a shape `update_variant_from_html` accepts:
+an entry is a bare `upload://` string, or an object with exactly one of `ref`,
+`src` or `tag`. Handing it the raw JavaScript as a string fails loudly, which is
+fine.
+
+A `tag` is accepted, and what happens next depends on the tag. A bare
+`<script>…</script>` is unwrapped on write and stored exactly as a `ref` would
+be, so it does round-trip. An **attributed** one — `<script type="text/javascript">`
+— is stored verbatim, opening tag and all, and comes back as a `tag` whose text
+starts with `<script`. Use `ref` so there is a single shape either skill can
+recognise, and so the entry you re-send later is the one you read.
+
+**Pass back every `scripts` entry the variant already had, plus this one.** Step 7
+has you send a complete `scripts` set, and in that call anything you leave out is
+deleted — so "don't add a second copy" must not become "don't include it". You
+already downloaded the existing entries in Step 2; re-send each one unchanged. If
+you are making no script change at all, omit `scripts` entirely instead, which
+preserves what is there.
+
+**Recognising an entry that already carries this tracking:** its body **contains**
+the line `// Google Analytics click tracking.` — the script is passed verbatim, so
+that string is present in any entry either skill created. Test for the line being
+present, not for the body starting with it: `get_variant` hands a JS-body script
+back as a `ref` you must download, and the `scripts_preserved` / `removed_scripts`
+reports give a `tag` that starts with `<script>`. Step 2 has already downloaded
+every script here, so the bodies are to hand. If one is there, re-send it as-is
+and add nothing; a second copy double-counts every click, which is worse than the
+under-count it was meant to fix and much harder to notice.
+
+The why and the guardrails (never add the GA loader) live in
+[`../mcp-page-authoring/rules/google-analytics.md`](../mcp-page-authoring/rules/google-analytics.md).
+
 **Step 7 — Write back in place and hand over.** `update_variant_from_html` on
 the same variant. It is a TRUE FULL REPLACE: pass the complete artifact set
-(html + all css + all js) every time — anything omitted is dropped. The change
-is staged, never published by you. Hand the user: what you did (one line), the
+(html + all css + all js) every time — anything omitted is dropped. `scripts` is
+the one exception to "every time", and only because omitting the array entirely
+is how you say "change no scripts"; see the paragraph below before you pass it.
+
+**`scripts` deserves its own care.** Passing the array replaces the complete set,
+and a variant can carry entries nobody authored through these tools — an Unbounce
+popup attaches itself as one. Dropping such an entry deletes a customer's popup or
+tracking pixel, and nothing about the rendered page shows it happened. So re-send
+every entry you read in Step 2, or omit `scripts` altogether if you are changing
+none of them (omission preserves them). This is the one place where "pass
+everything" and this skill's promise to _preserve user customizations verbatim_
+can pull apart if you are not deliberate.
+
+The change is staged, never published by you. Hand the user: what you did (one line), the
 `preview_ref` from a fresh `get_variant` (plus the builder preview link from
 `list_page_variants` for the original, so they can compare), the evidence
 summary from the self-check, and any genuine differences — concrete and
@@ -116,7 +173,10 @@ specific, or "none". Publishing, traffic, and goals are the user's call.
   Nothing added that has no source element — no nav, no sticky header, no hover
   effects the source lacks. Conversion-optimization defaults from
   `mcp-page-authoring` do NOT apply to a rewrite — replication trumps
-  landing-page best practices.
+  landing-page best practices. **One deliberate exception:** the GA
+  click-tracking script in Step 6b. It adds no content and changes nothing a
+  visitor sees; it restores instrumentation the source page already had and the
+  rewrite would otherwise drop. Nothing else earns an exception here.
 - **Every source text string appears verbatim** in the rewrite (whitespace-
   insensitive). Element names, ids, and image filenames are NOT content.
 - **Reuse every asset by its exact URL**, keeping `srcset`/`image-set` and

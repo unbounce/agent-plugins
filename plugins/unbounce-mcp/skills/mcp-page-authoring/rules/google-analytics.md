@@ -5,6 +5,12 @@ The short version lives in SKILL.md: **on every page, include
 the guardrails — read it if you need to explain the behaviour, or you hit an edge
 case.
 
+Two skills produce MCP-managed pages and both apply this rule: `mcp-page-authoring`
+when it writes a page, and `mcp-modernize` (Step 6b) when it rewrites a Classic
+one. This file and `scripts/ga-click-tracking.js` are the single copy of each —
+`mcp-modernize` references them by relative path rather than carrying its own,
+because both skills always ship together as sibling directories.
+
 ## What GA already does, and the gap
 
 When a page's domain has the Google Analytics integration switched on (Script
@@ -43,6 +49,35 @@ types. Specifics worth knowing:
   distinguishable in GA.
 
 ## Guardrails
+
+- **One copy per page — check before adding.** Adding a second entry double-counts
+  every click, which is worse than the under-count it was meant to fix and much
+  harder to notice. Before adding, look at the variant's existing `scripts`
+  entries; if one already carries this tracking, keep that one and add nothing.
+  This is the realistic path to a duplicate: a page gets the script when
+  `mcp-modernize` rewrites it, and is later edited through `mcp-page-authoring`,
+  whose rule is to add the script on every page. "Add it unconditionally" means
+  _don't ask the user_ — not _don't look first_.
+
+  **How to tell.** An entry created by either skill has a body **containing** the
+  line `// Google Analytics click tracking.` — the script is passed verbatim, so
+  that line is always present. Match on that rather than on the entry's name,
+  which whoever added it was free to choose.
+
+  **You have to go and look at the body; no response hands it to you.**
+  `get_variant` returns a JS-body script as `{ ref: 'upload://…/script-N.js' }`,
+  so download the `ref` (`download`, or `download_inband` without a shell) and
+  read it. The `scripts_preserved` and `removed_scripts` reports instead give
+  `{ tag: '<script>…</script>' }`, so look inside the tag. Either way the test is
+  "does this contain the line", never "does it start with it" — the `tag` form
+  never does.
+
+  **"Keep it" means something different depending on the call you are making.**
+  Omitting `scripts` entirely preserves every existing entry (`scripts_preserved`)
+  — that is the safe move when you are changing no scripts. But if you are passing
+  a `scripts` array at all, it replaces the complete set, so keeping an entry means
+  **re-sending it unchanged**; leaving it out of that array deletes it. This bites
+  hardest in `mcp-modernize`, whose Step 7 always passes the full artifact set.
 
 - **Never add the GA loader.** Do **not** add the `gtag.js` / `analytics.js`
   script tag or a `gtag('config', …)` call. GA is injected by Script Manager; a

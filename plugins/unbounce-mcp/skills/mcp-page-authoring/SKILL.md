@@ -263,11 +263,19 @@ that gap on every page you author:
 
 - **Include [`scripts/ga-click-tracking.js`](scripts/ga-click-tracking.js) as a
   `scripts` entry** (name it e.g. "GA click tracking", default `body_bottom`).
-  Read the file and pass its contents verbatim — don't hand-roll your own. It
-  wires every `<a>` and emits builder-matching GA events.
+  Upload the file (`upload`, or `upload_inband` without a shell) and pass the
+  returned `upload://` reference as the entry's `ref` — see
+  [Writing a `scripts` entry](#writing-a-scripts-entry); never hand-roll your
+  own. It wires every `<a>` and emits builder-matching GA events.
 - **It's safe by default.** The script feature-detects `gtag`/`ga` and no-ops when
   the domain has no GA integration, so add it unconditionally — that's why it's
   default-on, not something to ask about.
+- **But only ever one copy.** When editing a page that already carries a GA
+  click-tracking entry — a modernized page will — re-send it unchanged if you
+  are passing `scripts` at all, rather than adding a second, which would
+  double-count every click. Unconditional means don't ask the user, not don't
+  look first. ("Leave it alone" is the wrong instruction here: passing the array
+  replaces the whole set, so leaving an entry out deletes it.)
 - **Never add the GA loader** (`gtag.js` / `analytics.js` / a `gtag('config', …)`
   call). GA is injected by Script Manager; a second loader double-counts
   pageviews. This script only sends events.
