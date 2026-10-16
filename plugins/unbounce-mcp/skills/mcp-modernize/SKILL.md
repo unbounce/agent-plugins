@@ -1,6 +1,6 @@
 ---
 name: mcp-modernize
-description: Rewrite an imported (absolutely-positioned) Unbounce page variant as clean responsive HTML through Unbounce MCP. Use when the user asks to modernize a page, make a page responsive, get rid of absolute positioning, make a clean-HTML version of an existing Unbounce page, or edit a page that was built in the Unbounce builder — phrasings like "modernize this page", "make my page responsive", "convert my old page", "clean HTML version". Replication-faithful — this is a layout rewrite, never a redesign.
+description: Rewrite an imported (absolutely-positioned) Unbounce Classic page variant as clean responsive HTML through Unbounce MCP. Use when the user asks to modernize a page, make a page responsive, get rid of absolute positioning, make a clean-HTML version of an existing Classic page, or edit a page that was hand-built in the Unbounce Classic builder — phrasings like "modernize this page", "make my page responsive", "convert my old page", "clean HTML version". Replication-faithful — this is a layout rewrite, never a redesign. Not for AI Builder pages, which stay editable as they are (mcp-ai-builder-authoring).
 requires:
   mcpServers:
     - unbounce-mcp

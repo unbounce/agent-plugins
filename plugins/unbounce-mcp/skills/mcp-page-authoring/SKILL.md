@@ -1,6 +1,6 @@
 ---
 name: mcp-page-authoring
-description: Best practices for authoring an Unbounce landing page through Unbounce MCP — writing the HTML/CSS/JS for create_page_from_html, create_variant_from_html, and update_variant_from_html. Use when the user asks to create, build, design, generate, or edit an Unbounce landing page or variant, or to personalize page text by URL parameter (Dynamic Text Replacement). Applies only to pages authored through Unbounce MCP, not pages hand-built in the Unbounce builder.
+description: Best practices for authoring a Classic Unbounce landing page from HTML/CSS/JS through Unbounce MCP — create_page_from_html, create_variant_from_html, and update_variant_from_html. Use when the user asks for a Classic or custom-HTML page, when a new page needs something the AI Builder catalog cannot express (a bespoke interactive widget, custom page-level JavaScript), when the account does not have AI Builder, or to edit or add a variant to a page already authored through these HTML tools; also to personalize page text by URL parameter (Dynamic Text Replacement). A new page otherwise goes through the mcp-ai-builder-authoring skill. Not for AI Builder pages or pages hand-built in the Unbounce builder.
 requires:
   mcpServers:
     - unbounce-mcp
@@ -23,6 +23,10 @@ This covers **MCP-authored pages only**, and the split is exclusive both ways:
   the user they can open, tweak, swap images, or finish the page "in the
   Unbounce builder/editor" — they cannot. Every edit goes through these MCP
   tools: the user asks for the change, or supplies updated HTML.
+
+AI Builder pages (`create_ai_builder_page`, `edit_ai_builder_page`) are a separate
+route covered by the `mcp-ai-builder-authoring` skill; they stay editable in the
+Unbounce AI builder, so the rule above does not apply to them.
 
 ## Updating a variant: HTML/CSS replace, JS is left alone
 
