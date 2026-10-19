@@ -1,6 +1,6 @@
 ---
 name: mcp-ai-builder-authoring
-description: How to build or edit an Unbounce AI Builder page through Unbounce MCP — get_ai_builder_catalog, create_ai_builder_page, get_ai_builder_document, edit_ai_builder_page, then publish_page — and what makes the page good. Use by default when the user asks to create, build, design, or generate a new Unbounce landing page (AI Builder is the default route for a new page unless they ask for a Classic or custom-HTML page), and whenever the page to edit, restyle, or publish is an AI Builder page, including a colleague's. Carries a menu of design-system references to style a page from.
+description: How to build or edit an Unbounce AI Builder page through Unbounce MCP — get_ai_builder_catalog, create_ai_builder_page, get_ai_builder_document, edit_ai_builder_page, then publish_page — and what makes the page good. Use by default when the user asks to create, build, design, or generate a new Unbounce landing page (AI Builder is the default route for a new page unless the account's plan lacks it or they ask for a Classic or custom-HTML page), and whenever the page to edit, restyle, or publish is an AI Builder page, including a colleague's. Carries a menu of design-system references to style a page from.
 requires:
   mcpServers:
     - unbounce-mcp
@@ -15,13 +15,20 @@ Unbounce validates it, stores it, and renders it.
 
 ## Which route
 
-- **AI Builder is the default** for a new page.
+Each account in `list_accounts_and_clients` carries `builders`: whether its
+plan includes AI Builder (`ai_builder`) and the Classic Builder (`classic`),
+each true, false, or null when it could not be read. Read it before choosing.
+
+- **AI Builder is the default** for a new page unless `ai_builder` is false.
 - Use the Classic HTML route (`create_page_from_html`, the `mcp-page-authoring`
-  skill) only when the user asks for a Classic or custom-HTML page, when the
-  catalog genuinely cannot express what was asked for — for example a bespoke
-  interactive widget or custom page-level JavaScript — or when the account does
-  not have AI Builder (the catalog and create tools say so in their refusals).
-  Tell the user which route you took and why.
+  skill) when `ai_builder` is false, when the user asks for a Classic or
+  custom-HTML page, or when the catalog genuinely cannot express what was asked
+  for — for example a bespoke interactive widget or custom page-level
+  JavaScript. Not when `classic` is false: that plan has no Classic Builder.
+- With both false the plan includes neither of these builders (it may still
+  have another, such as Smart Builder), and no page can be created here. Tell
+  the user.
+- Tell the user which route you took and why.
 - An existing page stays on the route it was built with. A Classic page is
   edited with the Classic tools; an AI Builder page with the tools below.
 
@@ -73,7 +80,8 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
 
 **A new page**
 
-1. `list_accounts_and_clients` — the client's `clientId` is the `context`.
+1. `list_accounts_and_clients` — the client's `clientId` is the `context`, and
+   its account's `builders` decides the route (see "Which route").
 2. `get_ai_builder_catalog` with `context`. It returns the component projection
    (`type`, `name`, `category`, `description`) and the client's `style_guide`.
    Call it again with `component_types` for the full definition (traits,
@@ -225,13 +233,24 @@ it. Runtime specifics are in `detail`.
   resolved. Omit `style_guide_id`, or pass the one `get_ai_builder_catalog`
   returns.
 
+**The plan** — a retry does not change these. Both come before anything is
+uploaded or created.
+
+- `get-ai-builder-catalog.ai-builder-not-entitled`,
+  `create-ai-builder-page.ai-builder-not-entitled` — the plan has no AI Builder.
+  Take the Classic HTML route and tell the user why.
+- `get-ai-builder-catalog.no-builder-entitled`,
+  `create-ai-builder-page.no-builder-entitled` — the plan has neither builder,
+  so no page can be created here. Tell the user.
+
 **Account settings** — a retry does not fix these. Tell the user; where the
 remedy names the Classic HTML route, offer it.
 
 - `create-ai-builder-page.ai-builder-flag-off`
 - `create-ai-builder-page.not-author-or-not-entitled` — either the user is not
   an author on this client or the plan lacks AI Builder; the refusal does not
-  say which. `get_account_plan` shows the plan.
+  say which. The account's `builders` in `list_accounts_and_clients` tells them
+  apart.
 
 **Publishing**
 

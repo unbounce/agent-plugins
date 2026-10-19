@@ -28,6 +28,16 @@ AI Builder pages (`create_ai_builder_page`, `edit_ai_builder_page`) are a separa
 route covered by the `mcp-ai-builder-authoring` skill; they stay editable in the
 Unbounce AI builder, so the rule above does not apply to them.
 
+A new Classic page needs the Classic Builder on the account's plan: check
+`builders.classic` for the client's account in `list_accounts_and_clients`. When
+it is false, take the AI Builder route instead and tell the user why;
+`create_page_from_html` refuses such an account before anything is uploaded,
+with `create-page-from-html.classic-builder-not-entitled`, or
+`create-page-from-html.no-builder-entitled` when the plan has neither builder. A
+`create-page-from-html.not-author-or-not-entitled` at the create means the user
+is not an author on the client or the plan lacks the Classic Builder; `builders`
+tells them apart.
+
 ## Updating a variant: HTML/CSS replace, JS is left alone
 
 `update_variant_from_html` full-replaces the body HTML and the stylesheet, so
