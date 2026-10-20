@@ -49,15 +49,14 @@ These tools refuse an AI Builder page, so say so instead of trying them:
 - `create_variant_from_existing_variant` — there is no MCP way to add a variant
   to an AI Builder page.
 - `set_conversion_goals` and `get_layout_hints`.
-- `unpublish_page`.
 
 `set_variant_standing` works, with one limit on these pages: promoting the
 current champion or a discarded variant is rejected
 (`set-variant-standing.upstream-validation`) — bring a discarded variant back
 as a challenger first. `set_page_metadata` works (see "Page metadata" below).
-`set_traffic`, `set_variant_name`,
-`manage_page_redirect`, `get_page_stats`, `reset_page_stats`, and
-`delete_page` work as on a Classic page. A page with no traffic recorded yet
+`set_traffic`, `set_variant_name`, `manage_page_redirect`, `get_page_stats`,
+`reset_page_stats`, `unpublish_page`, and `delete_page` work as on a Classic
+page. A page with no traffic recorded yet
 returns `variants: []` with a `variants_unavailable` note, on any builder.
 
 ## Finding a page
