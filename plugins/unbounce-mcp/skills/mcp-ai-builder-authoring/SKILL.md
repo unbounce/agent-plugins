@@ -48,15 +48,14 @@ These tools refuse an AI Builder page, so say so instead of trying them:
   `bulk_edit_variants`, `get_variant`.
 - `create_variant_from_existing_variant` — there is no MCP way to add a variant
   to an AI Builder page.
-- `set_page_metadata` — there is no MCP way to set an AI Builder page's SEO
-  title, description, or social tags.
 - `set_conversion_goals` and `get_layout_hints`.
 - `unpublish_page`.
 
 `set_variant_standing` works, with one limit on these pages: promoting the
 current champion or a discarded variant is rejected
 (`set-variant-standing.upstream-validation`) — bring a discarded variant back
-as a challenger first. `set_traffic`, `set_variant_name`,
+as a challenger first. `set_page_metadata` works (see "Page metadata" below).
+`set_traffic`, `set_variant_name`,
 `manage_page_redirect`, `get_page_stats`, `reset_page_stats`, and
 `delete_page` work as on a Classic page. A page with no traffic recorded yet
 returns `variants: []` with a `variants_unavailable` note, on any builder.
@@ -123,6 +122,9 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
    `update_style`, `reorder`). See "Editing" below. Editing does not publish.
 4. `publish_page` with `page_uuid` when the user asks.
 
+Set the page's SEO title, description and social card with `set_page_metadata`
+at any point before publishing (see "Page metadata" below).
+
 ## Styling
 
 One rule, in this skill and in [rules/craft.md](rules/craft.md) alike:
@@ -183,6 +185,41 @@ nothing is written.
   variant's version history; the result names it `snapshot_version_id`.
 - **Not idempotent.** Sending the same batch twice applies it twice: a repeated
   `insert` adds a second copy.
+
+## Page metadata (SEO & social sharing)
+
+The page `<title>`, meta description, robots noindex, favicon and Open Graph
+(`og:*`) tags are the page's **settings**, not components: they live in
+`pages[0].settings` of each variant's editor document, where the Unbounce AI
+builder's settings panel also writes them. Set them with `set_page_metadata`
+(`page_uuid` only — no `context`); read them back from
+`get_ai_builder_document` under `pages[0].settings`. Always set a title and a
+description on a page the user intends to publish: a page with no title
+publishes under its page name.
+
+- **Every active variant is written** (the ones in the routing config), or one
+  with `letter`. Each write is a document save: the result's `variants_updated`
+  lists each variant's **new `version_id`** and its `snapshot_version_id`
+  restore point. A `version_id` you were holding for `edit_ai_builder_page`
+  is stale after this call — use the new one, or the edit is refused as a
+  `conflict`.
+- **Fields.** `title`, `description`, `keywords`, `hide_from_search_engines`,
+  `favicon` (an `upload://` icon or an asset id/uuid from `list_assets`),
+  `open_graph.title` / `description` / `image` (an https URL or an
+  `upload://` image). Partial: only passed fields change, `null` clears one.
+- **No slot on an AI Builder page**, reported in `warnings` rather than
+  applied: `open_graph.type` (always `website`) and `open_graph.url`. A
+  `<ub:dynamic>` tag is not rendered in these pages' head, so it is stripped
+  to its default text, with a warning — do not offer Dynamic Text Replacement
+  in an AI Builder page's title or description.
+- **Fallbacks at publish**, also in `warnings` when a call clears them: an empty
+  title publishes the page name; no favicon publishes Unbounce's default icon.
+- Changes are **staged**: a published page keeps its old head until the next
+  `publish_page`.
+- `set-page-metadata.no-editor-document` — the variant has never been saved;
+  ask the user to open it in the Unbounce AI builder and save once.
+- `set-page-metadata.unknown-routing-strategy` — the server cannot tell which
+  variants are active; pass `letter` to write one.
 
 ## Reading refusals
 

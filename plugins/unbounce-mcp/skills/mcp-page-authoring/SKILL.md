@@ -401,7 +401,8 @@ The page `<title>`, meta description, robots noindex, favicon, and Open Graph
 (`og:*`) tags are **page settings, not page HTML** — your authored HTML becomes
 the page **body**, where search engines and social scrapers never look for
 them. Set them with `set_page_metadata`; read them back via `get_variant`'s
-`metadata` block. As a safety net, the HTML-authoring tools **auto-extract**
+`metadata` block (on an AI Builder page, via `get_ai_builder_document` — see
+the `mcp-ai-builder-authoring` skill). As a safety net, the HTML-authoring tools **auto-extract**
 these head tags from submitted markup and apply them as metadata (reported
 under `head_metadata` in the result) — but on `update_variant_from_html` /
 `create_variant_from_html` that lands on **one variant only**, so prefer
