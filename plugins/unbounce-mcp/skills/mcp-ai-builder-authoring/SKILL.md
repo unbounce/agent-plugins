@@ -109,7 +109,9 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
    `page_name`, `variant_name`, and `style_guide_id` (omit it to use the client's
    resolved style guide — a page is pinned to its style guide at creation only).
    It returns the new page's uuid as `page_id`. The page is created
-   unpublished, with no URL.
+   unpublished, with no URL. Then call `get_ai_builder_render` with
+   `page_uuid` set to that `page_id`, and `context`, to check the page
+   renders; the validator cannot.
 8. `publish_page` with `page_uuid` set to that `page_id` — only when the user
    asks to publish.
 
@@ -122,6 +124,8 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
 3. `edit_ai_builder_page` with `page_uuid`, `context`, `variant`, `version_id`
    (from step 2, or from your previous edit's result), and `operations` (1 to 50: `insert`, `update`, `delete`, `update_text`,
    `update_style`, `reorder`). See "Editing" below. Editing does not publish.
+   After the edit, call `get_ai_builder_render` with the same `page_uuid`,
+   `context` and `variant` to check that variant renders.
 4. `publish_page` with `page_uuid` when the user asks.
 
 Set the page's SEO title, description and social card with `set_page_metadata`
