@@ -83,7 +83,8 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
 2. `get_ai_builder_catalog` with `context`. It returns the component projection
    (`type`, `name`, `category`, `description`) and the client's `style_guide`.
    Call it again with `component_types` for the full definition (traits,
-   defaults, nesting rules, styles) of the few components you mean to use.
+   defaults, default children; styles only with `include_styles`) of the few
+   components you mean to use.
    Every account that can use AI Builder gets the full catalog and a style
    guide (Unbounce's default when the account has none of its own).
    `style_guide` is `null` only when the read failed; `style_guide_unavailable`
@@ -97,7 +98,9 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
    with no `type` is a `default` node). Carry text in a
    `{ "type": "textnode", "content": "…" }` child, never an HTML string. If you
    are unsure of the shape, read an existing AI Builder page with
-   `get_ai_builder_document` and follow its `document`. The document must
+   `get_ai_builder_document` and follow its `document`. Give every component
+   whose text comes from a `data-*` trait both the trait and matching children
+   (see "Rendered text follows its `data-*` source"). The document must
    serialize to at most 1,000,000 bytes.
 5. Style with the style guide's variables — see "Styling" below.
 6. `upload` the JSON file (or `upload_inband` when you cannot run shell
@@ -145,6 +148,49 @@ One rule, in this skill and in [rules/craft.md](rules/craft.md) alike:
 - A `var(--x)` without a fallback that the style guide does not set fails
   validation. A `var(--x, fallback)` is **not** checked, so never use a
   fallback to hide a variable the style guide does not set.
+- A component's own CSS lives in its `#id` rule in `styles`, where the AI
+  builder's Style Manager edits it. Inline `style` (on the component or in its
+  `attributes`) on a created or inserted component is moved there, values
+  unchanged; a component without an `attributes.id` is given one, reported in
+  `generated_ids`.
+
+## Rendered text follows its `data-*` source
+
+The AI builder rebuilds much visible text from the component's own `data-*`
+traits each time it loads the page: button and field labels, stat values,
+accordion questions and answers, testimonial quotes and authors, pricing plans.
+The published page shows the stored children instead. So, when authoring and
+when editing alike, set the trait **and** write children that say exactly the
+same thing; never children that disagree with it. A stat item:
+
+```json
+{
+  "type": "ub-stat-item",
+  "attributes": { "data-value": "10,000+", "data-label": "Active users" },
+  "components": [
+    {
+      "tagName": "span",
+      "classes": ["ub-stat-item__value"],
+      "components": [{ "type": "textnode", "content": "10,000+" }]
+    },
+    {
+      "tagName": "span",
+      "classes": ["ub-stat-item__label"],
+      "components": [{ "type": "textnode", "content": "Active users" }]
+    }
+  ]
+}
+```
+
+- **`ub-form-button` is the exception:** `data-label` and no children, or its
+  label renders twice.
+- **List-encoded traits** (`data-features` on a pricing card, `data-links` on a
+  navbar or footer) hold every item in one value. Change an item by setting
+  the whole trait with `update`, not by editing the rendered item.
+- **Edits keep the two in step**, both ways, and list every value changed this
+  way in `synced`. When two `data-*` attributes on one component hold the same
+  value, the edit is refused; set the attribute you mean together with its text,
+  using `update` with both `attributes` and `components`.
 
 ## Editing
 
@@ -169,13 +215,9 @@ nothing is written.
   id to target it afterwards.
 - **`update_text`** does not write into a `script` component; replace the script
   with `update` instead.
-- **Rendered text follows its `data-*` source.** The AI builder rebuilds much
-  visible text (button labels, field labels, testimonial quotes) from the
-  component's `data-*` attributes each time it loads the page. An edit keeps the
-  two in step, both ways, and lists every value it changed this way in
-  `synced`. When two `data-*` attributes on one component hold the same value,
-  the edit is refused; set the attribute you mean together with its text, using
-  `update` with both `attributes` and `components`.
+- **Rendered text follows its `data-*` source** (see the section above): an
+  `insert` carries the trait and matching children, and an edit to either keeps
+  the other in step.
 - **Relabelling a form field can rename it.** A field whose name follows its
   label (`data-copy-name-from-label`) takes the new name on the next save in the
   editor, which changes the field name lead integrations receive. Tell the user
@@ -249,6 +291,9 @@ it. Runtime specifics are in `detail`.
 
 - `edit-ai-builder-page.target-not-found` / `edit-ai-builder-page.invalid-operation`
   — `detail` names the operation's index. Re-read and re-target.
+- `edit-ai-builder-page.duplicate-id` — an `insert` carries an `attributes.id`
+  another component already has; `detail` names it. Pick an unused id, or omit
+  it to have one generated.
 - `edit-ai-builder-page.conflict` — the variant was saved after the read your
   `version_id` came from (or during the call). Nothing was written. Re-read with
   `get_ai_builder_document`, re-plan against what is there now, and retry with
@@ -262,6 +307,9 @@ it. Runtime specifics are in `detail`.
 
 **Creating**
 
+- `create-ai-builder-page.duplicate-id` — two components share an
+  `attributes.id`; `detail` names each id and where. Give each component its
+  own id and retry. No page was created.
 - `create-ai-builder-page.create-failed` — the create failed unexpectedly. Check
   `list_client_pages` (`builder: "ai_builder"`) for a new empty page before
   retrying, so a retry does not leave a duplicate.
