@@ -234,8 +234,11 @@ it. Runtime specifics are in `detail`.
   components nor a string), an unknown component type, a `var(--x)` without
   a fallback that the style guide does not set, and script the caller added:
   an `on*` or `srcdoc` attribute, a `javascript:` URL, a `data:` document, or a
-  component `script` property. Fix all of them and retry; to run code on the
-  page, add a `script` node or Custom HTML deliberately.
+  component `script` property. A style property (in a `styles` rule or a style
+  object) or an attribute named `__proto__` or after an `Object.prototype`
+  member (`constructor`, `toString`, …) is refused too: builder-api cannot
+  render it. Fix all of them and retry; to
+  run code on the page, add a `script` node or Custom HTML deliberately.
 - A document that is not JSON, not a JSON object, or over 1,000,000 bytes is
   refused **without** `errors`; the reason is in `detail`.
 - `limits` (also on success) names what the check does not cover — nesting,
