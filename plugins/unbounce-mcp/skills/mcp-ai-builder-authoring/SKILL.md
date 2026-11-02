@@ -182,11 +182,30 @@ same thing; never children that disagree with it. A stat item:
 }
 ```
 
+- **Give the children the catalog's structure.** Write them with the elements
+  and classes of the type's default children in `component_details` (above,
+  `span.ub-stat-item__value` and `span.ub-stat-item__label`). The builder finds
+  them by those classes when a trait changes; children that carry none of them
+  are never updated, so the published page keeps showing them. Create and
+  `insert` report such a component in `warnings` (only for a type with
+  `data-*` traits; a section, nav or footer is never reported).
 - **`ub-form-button` is the exception:** `data-label` and no children, or its
-  label renders twice.
+  label renders twice. What the published page shows is the button's `text`,
+  which the tools set from `data-label` on create, `insert` and `update`,
+  with `aria-label` beside it. Removing `data-label` clears both.
 - **List-encoded traits** (`data-features` on a pricing card, `data-links` on a
   navbar or footer) hold every item in one value. Change an item by setting
-  the whole trait with `update`, not by editing the rendered item.
+  the whole trait with `update`, not by editing the rendered item. For a
+  pricing card, write the `ul.ub-pricing-card__features` container: on create,
+  `insert` and an `update` of `data-features`, the tools rewrite its items to
+  one `li.ub-pricing-card__feature` per `|`-separated entry (the update lists
+  the container in `synced`). Each entry is the item's markup, as in the
+  editor: `A & B` shows `&`, `<b>x</b>` shows bold. An entry may hold only text and
+  the inline formatting elements `b`, `i`, `em`, `strong`, `u`, `s`, `small`, `sub`, `sup`, `mark`, `code`, `br`, `span`, with no attributes; a link, an image, any other
+  element, an attribute or a comment refuses the whole write.
+  A card with no container, or with traits and no
+  children, is left as it is and named in `warnings`: it publishes without
+  those items until someone opens and saves the page in the AI builder.
 - **Edits keep the two in step**, both ways, and list every value changed this
   way in `synced`. When two `data-*` attributes on one component hold the same
   value, the edit is refused; set the attribute you mean together with its text,
