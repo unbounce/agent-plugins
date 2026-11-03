@@ -77,7 +77,9 @@ overlay (markup prefixed `cfm-` plus a script that reveals it via
 `window.ub.hooks.afterFormSubmit.push(...)`), preserve both verbatim — the
 `cfm-*` markup and its script are an exception to the "no old-namespace classes
 in output" hard stop. (If you must touch such a hook: always `.push()`, never
-assign — assignment breaks the platform's hook runner.)
+assign — assignment breaks the platform's hook runner.) Likewise never add a
+`submit` listener or POST to `/fsg` yourself — `update_variant_from_html`
+rejects both.
 
 ## User customizations — black boxes
 

@@ -225,6 +225,24 @@ Constraints, because the bytes travel through the conversation:
   This is independent of whether the form is multi-step. When reviewing a page,
   grep the controller for `afterFormSubmit =` and rewrite any assignment to a push.
 
+- **Never intercept the submit yourself.** Do not add a `submit` listener to the
+  form (or to `document`), set `onsubmit`, or call `form.submit()` /
+  `requestSubmit()`: the runtime's own listener does the validation and the
+  POST, and yours either stops it (no lead) or races it. The authoring tools
+  reject all of these at write time (rule E6), in inline `<script>` blocks and
+  `scripts` entries alike. A `click` listener on the button for analytics is fine.
+- **Never POST to the gateway yourself.** No `fetch`, `XMLHttpRequest` or
+  `navigator.sendBeacon` to `/fsg`, `/fsn`, `/fs` or the form's `action` — a
+  request without the runtime's `lp-form-submit-method=ajax` marker is flagged
+  `Form/NonAjax` by spam filtering and lands in spam, never in leads. Also
+  rejected at write time. Mirroring the lead to your own webhook is fine — do it
+  from inside `afterFormSubmit.push(...)`, to your third-party URL.
+- **Assigning over a hook is rejected too** — `= fn` or `= [fn]` on any of the
+  three `window.ub.hooks` arrays. The init guard from the snippet above —
+  `window.ub.hooks.afterFormSubmit = window.ub.hooks.afterFormSubmit || [];` — is
+  the one assignment that passes. Only a `.push(` counts as "the author handles
+  the confirmation"; an assignment does not suppress the default dialog.
+
 - **A signature comment is auto-injected** at the top of every variant body
   (Unbounce MCP version · client · timestamp). It's re-stamped on each write — don't
   duplicate it, don't strip it, and don't treat it as page content when you read a
