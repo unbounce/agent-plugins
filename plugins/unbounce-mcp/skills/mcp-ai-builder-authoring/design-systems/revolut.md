@@ -324,7 +324,7 @@ The system has **no traditional drop-shadow language**. Surfaces register depth 
 
 1. Focus on ONE component at a time. Most surfaces share the `#000000` / `#ffffff` pair with `9999px` for buttons and `20px` for cards.
 2. Reference component names and tokens directly (`#494fdf`, `{component.plan-card-featured}`, `20px`) — do not paraphrase.
-3. Run `npx @google/design.md lint DESIGN.md` after edits; orphaned-tokens warnings will catch unused entries.
+3. Lint the file after edits; orphaned-tokens warnings will catch unused entries.
 4. Add new variants as separate entries (`-pressed`, `-featured`, `-disabled`) — do not bury them in prose.
 5. Default body type to `{typography.body-md}` (Inter 400 with positive tracking); reach for `{typography.body-md-bold}` only on emphasis.
 6. Keep `#494fdf` scarce — if more than one cobalt-violet element appears per viewport, ask whether one should drop to `{component.plan-card}` (`#16181a`) instead.

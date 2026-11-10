@@ -17,8 +17,9 @@ artifact with the files.
 ## The design-system files are kept verbatim
 
 The 56 `design-systems/*.md` files are byte-for-byte copies of the `ai-builder`
-files, so a re-sync is a clean overwrite (`.prettierignore` keeps the formatter
-off them). Their known defects are **not** fixed in the files. SKILL.md
+files apart from the short list under "Local edits" below, so a re-sync is an
+overwrite followed by re-applying that list (`.prettierignore` keeps the
+formatter off them). Their known defects are **not** fixed in the files. SKILL.md
 corrects them instead — the menu and the "Reading a design-system file" rules:
 
 - **Wrong theme labels in the upstream registry.** `design_systems.yaml` labels
@@ -34,8 +35,8 @@ corrects them instead — the menu and the "Reading a design-system file" rules:
   The aesthetic text is also corrected where it names the wrong canvas
   (`webflow`, `clay`, `elevenlabs`, `cursor`, `mistral`, `together`).
 
-- **Tool instructions.** 24 files say to run `npx @google/design.md lint`;
-  16 point at YAML front matter that is not shipped; 7 (`together`, `uber`,
+- **Tool instructions.** 24 files upstream say to run the `@google/design.md`
+  linter (reworded here, see "Local edits"); 16 point at YAML front matter that is not shipped; 7 (`together`, `uber`,
   `voltagent`, `warp`, `webflow`, `wise`, `xai`) reference
   `scripts/derive-examples-block.mjs` and `/preview-design`; 30 say to focus
   on one component at a time.
@@ -50,6 +51,28 @@ corrects them instead — the menu and the "Reading a design-system file" rules:
   for CTAs and links").
 
 These are reported to the AI Builder team rather than patched here.
+
+## Local edits
+
+The Claude plugin directory's safety scan reads these files literally, as if
+they were instructions to the agent. It flagged a quoted install command as
+"Contains a download-and-run command" and held every published version. So the
+lines below differ from `ai-builder`, and only these. Each describes the same
+design element without the runnable or credential-shaped text.
+`test/skill-scanner-text.test.ts` fails if a re-sync brings any of it back.
+
+- `ollama.md` and `opencode.md` `install-snippet`: the quoted command that
+  pipes a downloaded install script into a shell becomes "the site's one-line
+  `curl` install command".
+- The 24 files whose closing steps say to run the `@google/design.md` linter
+  on `DESIGN.md` say "Lint the file after edits", with the rest of the line
+  kept.
+- `voltagent.md` overview: the code chip's quoted `npx` command becomes "a
+  one-line CLI command".
+- `pinterest.md` `text-input` and `modal-card`: the named list of sign-up
+  fields becomes "sign-up form fields".
+- `replicate.md` and `resend.md` known gaps: the dashboard's key-management
+  surface is called "account settings".
 
 ## Reference index
 
@@ -94,6 +117,9 @@ may use, read live, so there is no hand copy here to drift).
    the registry has fixed, add one for a new mismatch), and re-check the
    "Reading a design-system file" rules against any new tool instructions,
    fonts, or brand-identity rules in the files.
-4. Re-check that awesome-design-md's licence is unchanged and still MIT; if it
+4. Re-apply "Local edits" to the re-copied files, and add an entry for any new
+   install command, `npx` line, or credential field list a changed file
+   brings in. `test/skill-scanner-text.test.ts` names any that remain.
+5. Re-check that awesome-design-md's licence is unchanged and still MIT; if it
    changed, update `design-systems/LICENSE`.
-5. Update the commit, date, line ranges, and permalinks in this file.
+6. Update the commit, date, line ranges, and permalinks in this file.

@@ -1,9 +1,10 @@
 {
   "name": "unbounce-mcp",
-  "version": "1.0.419",
+  "version": "1.0.420",
   "description": "Author and manage Unbounce landing pages through Unbounce MCP.",
   "author": {
     "name": "Unbounce"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "privacyPolicyUrl": "https://unbounce.com/privacy/"
 }

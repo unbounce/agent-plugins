@@ -308,7 +308,7 @@ The system has **no traditional drop shadow language**. Every surface either get
 
 1. Focus on ONE component at a time. Most surfaces share `#0a0a0c` or `#101012` with `12px` — only the role-specific tokens (`#fcfdff`, `{component.code-window}`) shift between variants.
 2. Reference component names and tokens directly (`#fcfdff`, `{component.button-primary-pressed}`, `12px`) — do not paraphrase.
-3. Run `npx @google/design.md lint DESIGN.md` after edits; orphaned-tokens warnings will catch unused entries.
+3. Lint the file after edits; orphaned-tokens warnings will catch unused entries.
 4. Add new variants as separate entries (`-pressed`, `-featured`, `-disabled`) — do not bury them in prose.
 5. Default body type to `{typography.body-md}`; reach for `{typography.subtitle}` only on hero subtitles.
 6. Keep `#fcfdff` (white) scarce — if more than one solid white surface appears per viewport, ask whether one should drop to `{component.button-ghost}` instead.
@@ -316,6 +316,6 @@ The system has **no traditional drop shadow language**. Every surface either get
 ## Known Gaps
 
 - Pressed/active visual states are documented only for `button-primary-pressed`; other components rely on the default focus-ring (browser default) for interactive feedback.
-- Logged-in dashboard surfaces (API keys, sending logs, audience management) are out of scope; only the public marketing canvas is documented.
+- Signed-in dashboard surfaces (account settings, sending logs, audience management) are out of scope; only the public marketing canvas is documented.
 - Email-template editor surfaces (a key product feature) are not extracted — those live behind authentication.
 - The atmospheric glow rendering uses CSS radial gradients; exact stops and angles vary per section and are not standardised as tokens — render per section-specific design judgment.

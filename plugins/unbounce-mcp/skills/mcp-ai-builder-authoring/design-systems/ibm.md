@@ -278,7 +278,7 @@ The brand commits to flat 0px corners. The other tokens exist for product / mobi
 1. Focus on ONE component at a time and reference it by its `components:` token name.
 2. Default body to `{typography.body}` at weight 400 with `letter-spacing: 0.16px`. Don't remove the tracking.
 3. When introducing a new section, decide whether it sits on `#ffffff` (default) or on `#f4f4f4` (alternate band). The two-surface rhythm is the rhythm.
-4. Run `npx @google/design.md lint DESIGN.md` after edits.
+4. Lint the file after edits.
 5. Add new variants as separate component entries (`button-primary-pressed`, `text-input-error`, `text-input-focused`).
 6. Treat IBM Blue as scarce: links, primary CTA, CTA banner, focus underline. Anything beyond that is drift.
 7. Resist rounded corners. If a designer pushes for 4px rounding, the brand is shifting away from Carbon.

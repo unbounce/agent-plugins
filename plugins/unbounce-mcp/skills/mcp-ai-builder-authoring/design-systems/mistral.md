@@ -359,7 +359,7 @@ The radius scale is sober and editorial — Mistral does NOT use pill buttons. `
 
 1. Focus on ONE component at a time
 2. Reference component names and tokens directly (`#fa520f`, `{component-name}-pressed`)
-3. Run `npx @google/design.md lint DESIGN.md` after edits
+3. Lint the file after edits
 4. Add new variants as separate `components:` entries
 5. Default to `{typography.body-md}` for body and `{typography.subtitle}` for emphasis. Hero displays use `{typography.hero-display}` (PP Editorial Old).
 6. Keep `#fa520f` confined to primary CTAs, active states, and the sunset stripe band

@@ -242,7 +242,7 @@ Product UI mockups use `srcset` for desktop / tablet / mobile crops; the mobile 
 
 1. Focus on ONE component at a time.
 2. Reference component names and tokens directly (`#4a154b`, `{button-primary-pill}-pressed`, `90px`).
-3. Run `npx @google/design.md lint DESIGN.md` after edits.
+3. Lint the file after edits.
 4. Add new variants as separate entries.
 5. Default body to `{typography.body-md}`; reserve `{typography.body-lg}` for marketing leads.
 6. Keep aubergine scarce — one filled aubergine button per viewport.

@@ -172,7 +172,7 @@ There is no photography. The only image-like elements are:
 
 **`install-snippet`** — the signature install pill
 - Background `#fafafa`, text `#000000` rendered in `{typography.code-md}`, padding `12px 20px`, height `48px`, rounded `9999px`.
-- Contains the literal `curl -fsSL https://ollama.com/install.sh | sh` install command with a small copy-icon at the right edge. Sits directly below the hero headline as the page's most prominent "CTA."
+- Contains the site's one-line `curl` install command with a small copy-icon at the right edge. Sits directly below the hero headline as the page's most prominent "CTA."
 
 **`command-tag`** — small inline command chip
 - Background `#fafafa`, text `#000000` in `{typography.code-sm}`, padding `6px 12px`, rounded `9999px`.
@@ -279,7 +279,7 @@ The only image asset is the llama mascot (raster PNG at multiple resolutions: 16
 
 1. Focus on ONE component at a time. Pull its YAML entry from the front matter and verify every property resolves.
 2. Reference component names and tokens directly (`#000000`, `{component.button-primary-active}`, `9999px`) — do not paraphrase.
-3. Run `npx @google/design.md lint DESIGN.md` after edits — `broken-ref`, `contrast-ratio`, and `orphaned-tokens` warnings flag issues automatically.
+3. Lint the file after edits — `broken-ref`, `contrast-ratio`, and `orphaned-tokens` warnings flag issues automatically.
 4. Add new variants as separate component entries (`-active`, `-disabled`, `-focused`) — do not bury them inside prose.
 5. Default body to `{typography.body-md}`; reach for `{typography.body-sm}` for footer/utility text; reserve `{typography.display-xl}` strictly for the page-top headline.
 6. Keep `#000000` scarce per viewport — there should be at most one black pill per fold (counting nav, hero CTA, and pricing-card CTA together). The design's restraint is the design.

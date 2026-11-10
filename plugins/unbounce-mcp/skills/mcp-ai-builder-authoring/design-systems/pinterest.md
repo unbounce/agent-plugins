@@ -185,7 +185,7 @@ The radius vocabulary is essentially three values: 16px for most things, 32px fo
 **`text-input`** + **`text-input-focused`**
 - Default: background `#ffffff`, text `#000000`, 1px solid `#91918c`, type `{typography.body-md}`, padding `11px 15px`, height ~44px, rounded `16px`.
 - Focused: 2px `#000000` inner border + 4px `#435ee5` outer outline — the signature double-ring focus signal.
-- Used across the login/signup modal for email, password, birthdate, country fields.
+- Used across the sign-up modal for its form fields.
 
 **`search-bar`** + **`search-bar-focused`**
 - Default: background `#f6f6f3`, text `#000000`, type `{typography.body-md}`, padding `11px 15px`, height ~48px, rounded `9999px`.
@@ -215,7 +215,7 @@ The radius vocabulary is essentially three values: 16px for most things, 32px fo
 
 **`modal-card`** — login/signup overlay
 - Background `#ffffff`, rounded `32px` (32px), padding 32px.
-- Layout: title in `{typography.heading-lg}` ("Welcome to Pinterest"), subtitle in `{typography.body-md}`, stacked `{component.text-input}` fields (Email, Password, Birthdate, Country), primary `{component.button-primary}` "Continue", small "Already a member? Log in" link below.
+- Layout: title in `{typography.heading-lg}` ("Welcome to Pinterest"), subtitle in `{typography.body-md}`, stacked `{component.text-input}` sign-up form fields, primary `{component.button-primary}` "Continue", small "Already a member? Log in" link below.
 - Floats over a 50%-opacity scrim covering the entire page content with a 16px ambient shadow.
 
 **`hero-cta-strip`** — dark CTA strip on `create.pinterest.com`
@@ -300,7 +300,7 @@ All interactive elements meet WCAG AA (≥ 44×44px). `{component.button-primary
 
 1. Focus on ONE component at a time. Pull its YAML entry and verify every property resolves.
 2. Reference component names and tokens directly (`#e60023`, `{component.button-primary-pressed}`, `16px`) — do not paraphrase.
-3. Run `npx @google/design.md lint DESIGN.md` after edits — `broken-ref`, `contrast-ratio`, and `orphaned-tokens` warnings flag issues automatically.
+3. Lint the file after edits — `broken-ref`, `contrast-ratio`, and `orphaned-tokens` warnings flag issues automatically.
 4. Add new variants as separate component entries (`-pressed`, `-disabled`, `-focused`) — do not bury them inside prose.
 5. Default body to `{typography.body-md}`; reach for `{typography.body-strong}` for emphasis; reserve `{typography.display-xl}` strictly for top-of-page hero headlines.
 6. Keep `#e60023` scarce — at most one Pinterest-red CTA per fold (counting nav, hero, and feature-card CTAs together).

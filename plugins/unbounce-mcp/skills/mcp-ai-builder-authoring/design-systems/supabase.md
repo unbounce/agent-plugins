@@ -233,7 +233,7 @@ Product UI mockups use `srcset` with desktop / mobile crops; mobile crops focus 
 
 1. Focus on ONE component at a time.
 2. Reference component names and tokens directly.
-3. Run `npx @google/design.md lint DESIGN.md` after edits.
+3. Lint the file after edits.
 4. Default body to `{typography.body-md}`; use `{typography.code}` for any developer-facing snippet.
 5. Keep emerald scarce; one filled green button per viewport.
 6. The white-canvas commitment is non-negotiable — adding atmospheric backdrops breaks the brand.

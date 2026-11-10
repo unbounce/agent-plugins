@@ -315,7 +315,7 @@ Drop shadows exist in the extracted tokens but are restrained — used sparingly
 
 1. Focus on ONE component at a time. Most interactive elements share `9999px` and the `#f9f7f3` / `#ffffff` pair — only the role-specific tokens (`#ea2804`, `{component.code-block}`) shift between variants.
 2. Reference component names and tokens directly (`#ea2804`, `{component.button-primary-pressed}`, `16px`) — do not paraphrase.
-3. Run `npx @google/design.md lint DESIGN.md` after edits; orphaned-tokens warnings will catch unused entries.
+3. Lint the file after edits; orphaned-tokens warnings will catch unused entries.
 4. Add new variants as separate entries (`-pressed`, `-disabled`, `-featured`) — do not bury them in prose.
 5. Default body type to `{typography.body-md}`; reach for `{typography.subtitle}` only on hero subtitles.
 6. Keep `#ea2804` scarce — if more than one orange element appears per viewport, ask whether one should drop to `#202020` instead.
@@ -324,5 +324,5 @@ Drop shadows exist in the extracted tokens but are restrained — used sparingly
 
 - Active/pressed visual states are documented for `button-primary-pressed` only; other components rely on the focus-ring (`rgba(59,130,246,0.5)`) for interactive feedback, which is not extracted as a per-component variant.
 - The model playground / try-this-model interactive surfaces (logged-in feature) are out of scope; only the public marketing canvas is documented.
-- Dashboard / billing / API key management surfaces are not extracted — those live behind authentication.
+- Dashboard, billing, and account-settings surfaces are not extracted — those live behind authentication.
 - The home hero illustration ("the tinkerer at the workbench") is treated as decorative artwork, not a system component; replicating it requires bespoke illustration rather than tokens.

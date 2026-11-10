@@ -186,7 +186,7 @@ There is no photography. Visual elements are limited to:
 
 **`install-snippet`** — the home page's signature install code block
 - Background `#f1eeee` (`#f1eeee`), text `#201d1d` rendered in `{typography.body-md}` (already monospaced — Berkeley Mono), padding `12px 16px`, rounded `4px`.
-- Contains the literal `curl -fsSL https://opencode.ai/install | bash` command with a small copy-icon at the right edge. Sits below the install-method tab strip.
+- Contains the site's one-line `curl` install command with a small copy-icon at the right edge. Sits below the install-method tab strip.
 
 ### Cards & Containers
 
@@ -286,7 +286,7 @@ There are no raster images in the system aside from the favicon and OG share ima
 
 1. Focus on ONE component at a time. Pull its YAML entry and verify every property resolves.
 2. Reference component names and tokens directly (`#201d1d`, `{component.hero-tui-mockup}`, `4px`) — do not paraphrase.
-3. Run `npx @google/design.md lint DESIGN.md` after edits — `broken-ref`, `contrast-ratio`, and `orphaned-tokens` warnings flag issues automatically.
+3. Lint the file after edits — `broken-ref`, `contrast-ratio`, and `orphaned-tokens` warnings flag issues automatically.
 4. Add new variants as separate component entries (`-active`, `-disabled`) — do not bury them inside prose.
 5. Default body to `{typography.body-md}`; reach for `{typography.body-strong}` for emphasis; reserve `{typography.display-xl}` strictly for the page-top hero headline.
 6. Keep `#201d1d` scarce — at most one full-bleed dark mockup per page. The dark surface is a narrative device, not a chrome treatment.
