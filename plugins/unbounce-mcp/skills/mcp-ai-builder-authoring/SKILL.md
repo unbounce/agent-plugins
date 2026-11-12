@@ -48,7 +48,7 @@ These tools refuse an AI Builder page, so say so instead of trying them:
   `bulk_edit_variants`, `get_variant`.
 - `create_variant_from_existing_variant` — there is no MCP way to add a variant
   to an AI Builder page.
-- `set_conversion_goals` and `get_layout_hints`.
+- `get_layout_hints`.
 
 `set_variant_standing` works, with one limit on these pages: promoting the
 current champion or a discarded variant is rejected
@@ -103,11 +103,15 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
    (see "Rendered text follows its `data-*` source"). The document must
    serialize to at most 1,000,000 bytes.
 5. Style with the style guide's variables — see "Styling" below.
-6. `upload` the JSON file (or `upload_inband` when you cannot run shell
-   commands) to get an `upload://` reference.
-7. `create_ai_builder_page` with `context` and `document_ref`; optionally
-   `page_name`, `variant_name`, and `style_guide_id` (omit it to use the client's
-   resolved style guide — a page is pinned to its style guide at creation only).
+6. Under about 100 KB, pass the document inline as `document`. Above that, `upload`
+   the JSON file (or `upload_inband` when you cannot run shell commands) and pass
+   the `upload://` reference as `document_ref`. Exactly one of the two. The
+   1,000,000-byte limit still applies either way; 100 KB is only so the inline
+   JSON does not fill the conversation.
+7. `create_ai_builder_page` with `context` and that `document` or `document_ref`;
+   optionally `page_name`, `variant_name`, and `style_guide_id` (omit it to use
+   the client's resolved style guide — a page is pinned to its style guide at
+   creation only).
    It returns the new page's uuid as `page_id`. The page is created
    unpublished, with no URL. Then call `get_ai_builder_render` with
    `page_uuid` set to that `page_id`, and `context`, to check the page
@@ -130,6 +134,33 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
 
 Set the page's SEO title, description and social card with `set_page_metadata`
 at any point before publishing (see "Page metadata" below).
+
+Set what counts as a conversion with `set_conversion_goals` before publishing
+(see "Conversion goals" below). A page created here that has a form already
+counts the form.
+
+## Conversion goals
+
+`create_ai_builder_page` writes `[{ type: "form", url: "/fs" }]` into
+`pages[0].settings.activeGoals` when the document has a form and does not
+already set that list. The published form then posts to `/fsg` and counts. An
+explicit empty `activeGoals` is left alone.
+
+To turn the form off, or to count a link, a phone number, or a lightbox, call
+`set_conversion_goals` with the **complete** set (`form_submission` and
+`link_urls`) before `publish_page`. It writes every active variant. A URL that
+matches nothing on those variants is refused, and the error lists the real
+candidates. Read them from `get_ai_builder_document`'s `conversion_goals` on
+the first page (or a full view). A trailing slash does not matter. A goal
+already stored that matches no candidate is kept.
+
+The goals show in the Unbounce AI builder's Goals panel. A save there keeps a
+goal whose element is still on the page and drops one whose element is gone.
+`mailto:` links are not goals, and neither is an image `data-href`. A variant
+that already had this set is not saved. A variant that changes gets a new
+`version_id`: pass `variants_updated[].version_id` to the next
+`edit_ai_builder_page` only when that entry is not `unchanged`. Nothing is
+live until `publish_page`.
 
 ## Styling
 
