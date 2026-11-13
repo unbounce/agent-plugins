@@ -22,9 +22,10 @@ each true, false, or null when it could not be read. Read it before choosing.
 - **AI Builder is the default** for a new page unless `ai_builder` is false.
 - Use the Classic HTML route (`create_page_from_html`, the `mcp-page-authoring`
   skill) when `ai_builder` is false, when the user asks for a Classic or
-  custom-HTML page, or when the catalog genuinely cannot express what was asked
-  for — for example a bespoke interactive widget or custom page-level
-  JavaScript. Not when `classic` is false: that plan has no Classic Builder.
+  custom-HTML page, or when the catalog genuinely cannot express a widget.
+  Custom page-level JavaScript on an AI Builder page is
+  `set_ai_builder_custom_code`, not a reason to switch to Classic. Not when
+  `classic` is false: that plan has no Classic Builder.
 - With both false the plan includes neither of these builders (it may still
   have another, such as Smart Builder), and no page can be created here. Tell
   the user.
@@ -281,6 +282,28 @@ nothing is written.
 - **Not idempotent.** Sending the same batch twice applies it twice: a repeated
   `insert` adds a second copy.
 
+## Custom code
+
+A countdown, a tag manager, or a third-party embed is custom code. Write it
+with `set_ai_builder_custom_code`, one call, on one variant (default `a`).
+
+- `before_body_end` — a script that needs the DOM: a countdown, an embed.
+- `after_body_tag` — a script that must run immediately, such as a tag manager.
+- `head` — tags and scripts inside `<head>`.
+
+Pass only the slots to change. `null` or `""` clears a slot. A `<script src>`
+is stored as written and runs in the browser on the published page; this call
+does not fetch it. The account needs one of `pageScripts`, `pageStylesheets`
+or `customHtmlElements` — the same gate Page Settings uses. Without it the
+call names that gate and writes nothing. The three slots come back on
+`get_ai_builder_document` as `custom_code`. They are staged until
+`publish_page`.
+
+Do not put `custom-html-body`, `custom-html-after-body`, `customCodeHead` or
+`customCodeBody` in a document for `create_ai_builder_page` or
+`edit_ai_builder_page`. Those calls refuse slot content. A `script` component
+in the document is not a slot, and those calls still accept it.
+
 ## Page metadata (SEO & social sharing)
 
 The page `<title>`, meta description, robots noindex, favicon and Open Graph
@@ -333,8 +356,9 @@ it. Runtime specifics are in `detail`.
   component `script` property. A style property (in a `styles` rule or a style
   object) or an attribute named `__proto__` or after an `Object.prototype`
   member (`constructor`, `toString`, …) is refused too: builder-api cannot
-  render it. Fix all of them and retry; to
-  run code on the page, add a `script` node or Custom HTML deliberately.
+  render it. Custom-code slot content the page did not already have is refused
+  too. Fix all of them and retry; to run code on the page, use
+  `set_ai_builder_custom_code`.
 - A document that is not JSON, not a JSON object, or over 1,000,000 bytes is
   refused **without** `errors`; the reason is in `detail`.
 - `limits` (also on success) names what the check does not cover — nesting,

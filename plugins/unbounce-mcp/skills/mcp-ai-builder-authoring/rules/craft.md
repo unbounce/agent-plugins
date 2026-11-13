@@ -91,9 +91,10 @@ a `tagName` such as `div` or `span`, and an `attributes.id` — styled by its ow
 - **Mock product UI:** see "Photography" below.
 
 The validator also accepts `svg`, but nothing checks that its attributes and
-children render, so prefer CSS. Do not use `custom-html-body` or
-`custom-html-after-body`: they are the page's custom-code slots, not
-decoration. If a detail cannot be built this way, leave it out.
+children render, so prefer CSS. Do not put scripts in `custom-html-body` or
+`custom-html-after-body`, and do not set `customCodeHead` or `customCodeBody`.
+Those are the page's custom-code slots. Write them with
+`set_ai_builder_custom_code`. If a detail cannot be built this way, leave it out.
 
 ## Layout density and alignment
 
