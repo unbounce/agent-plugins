@@ -69,7 +69,8 @@ tone, so it reads as designed rather than templated:
 
 Keep them to accents: structure, copy, forms, buttons, and navigation stay
 catalog components. Colour them with the style guide's `var(--…)` variables so
-they follow the brand, and don't repeat the same flourish on every page.
+they follow the brand (a brand colour the user names goes in the page theme,
+see SKILL.md "Styling"), and don't repeat the same flourish on every page.
 
 How to build them on this route. The validator accepts catalog types and the
 editor's built-in types only, so a detail is a plain `default` node — no `type`,
@@ -179,9 +180,10 @@ Nothing on this route checks contrast, so you have to.
 - Target at least 4.5:1 between text and its background.
 - Follow the styling rule in SKILL.md "Styling": the style guide's `var(--…)`
   variables for colour, text, borders, surfaces, shadows, radii, fonts, type
-  sizes, and spacing; literal values only for a section or decorative
-  background that harmonizes with the palette, and for a layout dimension the
-  style guide has no variable for.
+  sizes, and spacing, with the user's brand colours and fonts set as the page
+  theme; literal values only for a section or decorative background or a
+  one-off accent that harmonizes with the palette, and for a layout dimension
+  the style guide has no variable for. Never a literal font family.
 - Accent and brand colours (saturated oranges, golds, limes) are for fills,
   borders, and highlights — not running text, eyebrows, or labels on a light
   background, where they fall below a readable contrast. Colour small text with

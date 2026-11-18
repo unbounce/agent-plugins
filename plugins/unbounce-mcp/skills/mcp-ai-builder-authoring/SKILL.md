@@ -103,16 +103,18 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
    whose text comes from a `data-*` trait both the trait and matching children
    (see "Rendered text follows its `data-*` source"). The document must
    serialize to at most 1,000,000 bytes.
-5. Style with the style guide's variables — see "Styling" below.
+5. Style with the style guide's variables — see "Styling" below. Brand colours
+   and fonts the user names become the page theme (step 7's `theme`), not
+   literal values.
 6. Under about 100 KB, pass the document inline as `document`. Above that, `upload`
    the JSON file (or `upload_inband` when you cannot run shell commands) and pass
    the `upload://` reference as `document_ref`. Exactly one of the two. The
    1,000,000-byte limit still applies either way; 100 KB is only so the inline
    JSON does not fill the conversation.
 7. `create_ai_builder_page` with `context` and that `document` or `document_ref`;
-   optionally `page_name`, `variant_name`, and `style_guide_id` (omit it to use
-   the client's resolved style guide — a page is pinned to its style guide at
-   creation only).
+   optionally `page_name`, `variant_name`, `style_guide_id` (omit it to use the
+   client's resolved style guide — a page is pinned to its style guide at
+   creation only), and `theme` (see "Styling").
    It returns the new page's uuid as `page_id`. The page is created
    unpublished, with no URL. Then call `get_ai_builder_render` with
    `page_uuid` set to that `page_id`, and `context`, to check the page
@@ -128,7 +130,7 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
    pause or failure. Keep the `version_id` it returns: the edit needs it.
 3. `edit_ai_builder_page` with `page_uuid`, `context`, `variant`, `version_id`
    (from step 2, or from your previous edit's result), and `operations` (1 to 50: `insert`, `update`, `delete`, `update_text`,
-   `update_style`, `reorder`). See "Editing" below. Editing does not publish.
+   `update_style`, `reorder`, `set_theme`). See "Editing" below. Editing does not publish.
    After the edit, call `get_ai_builder_render` with the same `page_uuid`,
    `context` and `variant` to check that variant renders.
 4. `publish_page` with `page_uuid` when the user asks.
@@ -172,12 +174,39 @@ One rule, in this skill and in [rules/craft.md](rules/craft.md) alike:
   spacing, radius, border, and shadow the style guide has a variable for.
   Variables follow a rebrand and the AI builder's theme editor; literal values
   survive neither.
+- **Brand colours and fonts the user names go in the page theme**, never in
+  literal values: `theme` on `create_ai_builder_page`, or a `set_theme`
+  operation on `edit_ai_builder_page`. A theme maps variables named in
+  `style_guide.themeable` to values, such as
+  `{ "--brand": "#0a7cff", "--ub-font-display": "Poppins" }`, and sets them
+  as the AI builder's theme panel would: every component styled with
+  `var(--…)` follows, and the user can change them in that panel, where each
+  shows as Custom. Keep styling components with the variables; the theme
+  changes what they hold.
+- Setting a palette's base colour (`--brand`, `--ub-color-secondary`,
+  `--ub-color-accent`, `--ub-color-text`, `--ub-success`, `--ub-warning`,
+  `--ub-danger`) as a `#` hex or `rgb()` also sets its five-step series and
+  moves the button, link, form-field and text colours that still follow it (on
+  a fresh page `--brand` moves the buttons and links), as the AI builder does,
+  unless you set those yourself; `theme_derived` lists them. Read it rather
+  than assume: a colour follows only while it equals the palette colour, so on
+  Unbounce's default style guide `--ub-color-text` does not move the body text
+  (`--ub-font-body-color`); set that variable too when the user wants it
+  changed. A colour name or `hsl()` is written but moves nothing, and
+  `theme_warnings` says so: send palette colours as `#` hex.
+- To undo a theme value, set it to `null` in `set_theme`: the variable goes
+  back to its style-guide default, and a palette colour's series and followers
+  go back with it. A
+  font variable takes a Google Fonts family from the AI builder's catalogue
+  (spelled as Google Fonts spells it) or a generic or system family; its web
+  font is declared for you. An unknown variable or family is refused
+  (`invalid-theme`).
 - Literal values for those are allowed in two places only: a **section or
-  decorative background** (a tint, a gradient, an orb) that harmonizes with the
-  palette, and a **layout dimension the style guide has no variable for** (a
-  width or height, `max-width`, padding, margin, `gap`, grid template, or
-  `aspect-ratio`), in px, %, or `fr`. Never write a literal font family, and
-  never a literal text, border, or button colour.
+  decorative background** (a tint, a gradient, an orb) or a **one-off accent**
+  that harmonizes with the palette, and a **layout dimension the style guide
+  has no variable for** (a width or height, `max-width`, padding, margin,
+  `gap`, grid template, or `aspect-ratio`), in px, %, or `fr`. Never write a
+  literal font family, and never a literal text, border, or button colour.
 - CSS that is not a design value — `display`, `position`, flex and grid
   alignment, `clip-path` shapes, `filter`, `z-index`, `object-fit` — is
   written as-is.
@@ -267,7 +296,12 @@ nothing is written.
   instead of re-reading.
 - **`update_style`** merges CSS into the component's own `#id` rule. A component
   without an `attributes.id` is given one, reported in `generated_ids`; use that
-  id to target it afterwards.
+  id to target it afterwards. It is not how to change a brand colour or font:
+- **`set_theme { theme }`** sets the page theme for the whole page (see
+  "Styling"), merged over the page's current theme. It names no component.
+  `get_ai_builder_document`'s `theme` lists the values set away from the style
+  guide's default, each as `{ value, default }` (the rest are the guide's);
+  never edit `dataSources` or the `:root` rule directly.
 - **`update_text`** does not write into a `script` component; replace the script
   with `update` instead.
 - **Rendered text follows its `data-*` source** (see the section above): an
@@ -451,8 +485,8 @@ own defects, which the rules below override.
 Use them for the page's **structure and feel** — density, section rhythm,
 hierarchy, component treatment, and the shape of the type scale, spacing, and
 radii. The **identity** stays the user's: brand colours and fonts come from
-the client's style guide variables and the user's own direction, never from
-the system's brand, logo, or name.
+the client's style guide variables and the user's own direction (set through
+the page theme), never from the system's brand, logo, or name.
 
 Pick the one system that best fits the page's subject and tone (or the user's
 stated style) and read **only** `design-systems/<slug>.md` for it — never more
@@ -461,7 +495,8 @@ has given a clear direction of their own.
 
 **Applying a system on this route.** A page here is pinned to the client's
 style guide; there is no way to apply a design system's own style-guide map.
-So translate, following "Styling" above:
+The page theme sets the user's own colours and fonts, not the system's. So
+translate, following "Styling" above:
 
 - **Type scale, weights, spacing, radii, shadows:** for each role the reference
   describes (display heading, body, section padding, card radius, …), use the
@@ -473,7 +508,7 @@ So translate, following "Styling" above:
   A colour or font never is, outside the background exception in "Styling".
 - **Palette and typeface** are character, not values: "warm cream canvas,
   near-black ink, one saturated accent" tells you how to use the style guide's
-  own colours, not which hex codes to type.
+  own colours, not which hex codes to type, and never which values to theme.
 
 ### Reading a design-system file
 
@@ -495,10 +530,10 @@ When you open one, these rules override anything in it:
   it is spelled the way Google Fonts spells it. A proprietary or custom face
   (figmaSans, SF Pro, Söhne, a brand's bespoke serif, …) does not load — the
   browser silently falls back. For a proprietary face, pick the nearest Google
-  Fonts family. Fonts on this page come from the style guide's font variables,
-  which you cannot change here, so name that family to the user as a
-  suggestion for their style guide; never write it, or the proprietary face,
-  as a literal `font-family`. (Upstream rule; see
+  Fonts family. Fonts on this page come from the style guide's font variables;
+  when the user wants that family, set it through the page theme (`theme` or
+  `set_theme`), which refuses a family it cannot load. Never write it, or the
+  proprietary face, as a literal `font-family`. (Upstream rule; see
   [rules/upstream.md](rules/upstream.md).)
 - **No emoji**, even where a file prescribes them as markers.
 - **No logo walls** or customer-logo strips unless the user asks for one and
