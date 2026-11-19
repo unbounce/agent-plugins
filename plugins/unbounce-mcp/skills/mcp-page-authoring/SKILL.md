@@ -24,7 +24,8 @@ This covers **MCP-authored pages only**, and the split is exclusive both ways:
   Unbounce builder/editor" — they cannot. Every edit goes through these MCP
   tools: the user asks for the change, or supplies updated HTML.
 
-AI Builder pages (`create_ai_builder_page`, `edit_ai_builder_page`) are a separate
+AI Builder pages (`create_ai_builder_page`, `edit_ai_builder_page`,
+`create_ai_builder_variant`) are a separate
 route covered by the `mcp-ai-builder-authoring` skill; they stay editable in the
 Unbounce AI builder, so the rule above does not apply to them.
 

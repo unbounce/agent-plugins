@@ -1,6 +1,6 @@
 ---
 name: mcp-ai-builder-authoring
-description: How to build or edit an Unbounce AI Builder page through Unbounce MCP — get_ai_builder_catalog, create_ai_builder_page, get_ai_builder_document, edit_ai_builder_page, then publish_page — and what makes the page good. Use by default when the user asks to create, build, design, or generate a new Unbounce landing page (AI Builder is the default route for a new page unless the account's plan lacks it or they ask for a Classic or custom-HTML page), and whenever the page to edit, restyle, or publish is an AI Builder page, including a colleague's. Carries a menu of design-system references to style a page from.
+description: How to build or edit an Unbounce AI Builder page through Unbounce MCP — get_ai_builder_catalog, create_ai_builder_page, get_ai_builder_document, edit_ai_builder_page, create_ai_builder_variant for an A/B test, then publish_page — and what makes the page good. Use by default when the user asks to create, build, design, or generate a new Unbounce landing page (AI Builder is the default route for a new page unless the account's plan lacks it or they ask for a Classic or custom-HTML page), and whenever the page to edit, restyle, A/B test, or publish is an AI Builder page, including a colleague's. Carries a menu of design-system references to style a page from.
 requires:
   mcpServers:
     - unbounce-mcp
@@ -46,9 +46,9 @@ and does not apply here; never tell the user an AI Builder page is MCP-only.
 These tools refuse an AI Builder page, so say so instead of trying them:
 
 - The Classic HTML tools: `update_variant_from_html`, `create_variant_from_html`,
-  `bulk_edit_variants`, `get_variant`.
-- `create_variant_from_existing_variant` — there is no MCP way to add a variant
-  to an AI Builder page.
+  `create_variant_from_existing_variant`, `bulk_edit_variants`, `get_variant`.
+  To add a variant to an AI Builder page use `create_ai_builder_variant` (see
+  "An A/B test" below).
 - `get_layout_hints`.
 
 `set_variant_standing` works, with one limit on these pages: promoting the
@@ -142,12 +142,47 @@ Set what counts as a conversion with `set_conversion_goals` before publishing
 (see "Conversion goals" below). A page created here that has a form already
 counts the form.
 
+**An A/B test**
+
+1. `create_ai_builder_variant` with `page_uuid`, `context` and
+   `source_variant` (the letter to copy, usually the champion from
+   `list_page_variants`), plus a `variant_name`. The copy carries the source's
+   content, conversion goals, lineage and style guide. To add a variant you
+   authored instead, pass the document the way a create takes it, `document`
+   inline under about 100 KB or `document_ref` (an `upload://` file) above
+   that, rather than `source_variant`. Exactly one of the three. An authored
+   variant is validated like a create and takes the champion's conversion
+   goals for every element it has (`goals_copied_from`, `active_goals`);
+   `goals_dropped` lists the champion's goals it has no element for. When the
+   champion has no goals to copy, a document with a form gets the form goal a
+   create adds (`form_goal_defaulted`). A document that sets its own
+   `activeGoals` keeps them.
+2. `get_ai_builder_document` the new letter — the copy has its own
+   `version_id` — then `edit_ai_builder_page` it with the change under test.
+3. `set_traffic`: the new variant has no traffic until it is routed. On a
+   single-routed page the result says so (`standing: "discarded"`); on a page
+   already split it is added as a challenger at weight 0. Either way give it a
+   share (`weighted`, or `dta` for Smart Traffic).
+4. A copy and an authored variant both count what the champion counts. Call
+   `set_conversion_goals` with the page's complete set (see "Conversion goals"
+   below) only when that should change: the result carries `goals_dropped`,
+   its `goals_note` says the champion's goals could not be read, or the new
+   variant has a link, phone number or lightbox the test should count. Do it
+   after `set_traffic`: it writes only variants in the routing config, so a
+   variant still `discarded` is skipped.
+5. `publish_page` when the user asks.
+
+If the tool fails after creating the variant (`content-write-failed`), the
+letter it names has no content: remove it with `delete_variant` before retrying.
+
 ## Conversion goals
 
 `create_ai_builder_page` writes `[{ type: "form", url: "/fs" }]` into
 `pages[0].settings.activeGoals` when the document has a form and does not
 already set that list. The published form then posts to `/fsg` and counts. An
-explicit empty `activeGoals` is left alone.
+explicit empty `activeGoals` is left alone. A variant authored with
+`create_ai_builder_variant` takes the champion's goals instead, and this form
+default only when the champion has none (see "An A/B test" above).
 
 To turn the form off, or to count a link, a phone number, or a lightbox, call
 `set_conversion_goals` with the **complete** set (`form_submission` and
