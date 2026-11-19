@@ -1,6 +1,6 @@
 ---
 name: mcp-ai-builder-authoring
-description: How to build or edit an Unbounce AI Builder page through Unbounce MCP — get_ai_builder_catalog, create_ai_builder_page, get_ai_builder_document, edit_ai_builder_page, create_ai_builder_variant for an A/B test, then publish_page — and what makes the page good. Use by default when the user asks to create, build, design, or generate a new Unbounce landing page (AI Builder is the default route for a new page unless the account's plan lacks it or they ask for a Classic or custom-HTML page), and whenever the page to edit, restyle, A/B test, or publish is an AI Builder page, including a colleague's. Carries a menu of design-system references to style a page from.
+description: How to build or edit an Unbounce AI Builder page through Unbounce MCP — get_ai_builder_catalog, create_ai_builder_page, get_ai_builder_document, edit_ai_builder_page, create_ai_builder_variant for an A/B test, then publish_page — or start one from an Unbounce template with list_ai_builder_templates, and what makes the page good. Use by default when the user asks to create, build, design, or generate a new Unbounce landing page (AI Builder is the default route for a new page unless the account's plan lacks it or they ask for a Classic or custom-HTML page), and whenever the page to edit, restyle, A/B test, or publish is an AI Builder page, including a colleague's. Carries a menu of design-system references to style a page from.
 requires:
   mcpServers:
     - unbounce-mcp
@@ -122,6 +122,41 @@ Then `list_page_variants` with the `page_uuid`: identify each variant by its
 8. `publish_page` with `page_uuid` set to that `page_id` — only when the user
    asks to publish.
 
+**A page from an Unbounce template**
+
+Start from a template when the user names one, or wants a ready-made layout to
+fill with their own copy. Author a page (above) when the structure they describe
+matches no template.
+
+1. `list_accounts_and_clients`, as above.
+2. `list_ai_builder_templates`, optionally narrowed with `name` or `tag` (a page
+   type such as `lead generation` or `webinar`, an industry such as `SaaS`).
+   This list is the only source of truth for which templates exist: a template
+   the user saw in the gallery on Unbounce's website may be named differently
+   here, or not be an AI Builder template at all. Match what they asked for
+   against `name`, `description` and the tags, offer the closest, and say so
+   when none fits.
+3. `create_ai_builder_page` with `context` and `template` set to the chosen
+   template's `uuid` (never its name); optionally `page_name`, `variant_name`
+   and `style_guide_id`. Not `theme`: that is refused (`theme-with-template`)
+   and goes on in step 5. The page is a copy of the template — its content,
+   styles and conversion goals — and is unpublished. The template keeps its own
+   look: the style guide pinned to the page does not restyle it.
+4. `get_ai_builder_document` with `page_uuid` set to that `page_id`, and
+   `context`. Keep the `version_id`, and note the `conversion_goals` block.
+5. `edit_ai_builder_page` to make it the user's: one `set_theme` for their brand
+   colours and fonts, which every component styled with the theme follows
+   (change a component the template styles with a literal value with
+   `update_style`); `update_text` for each piece of copy; `update` for image
+   sources and links; `delete` and `insert` for sections that do not fit. A
+   call takes up to 50 operations, so rewriting a long template can take two or
+   three calls, each passing the `version_id` the previous one returned. Then
+   `get_ai_builder_render` to check it renders.
+6. `set_conversion_goals` when the template's goals are not the ones the user
+   wants. A template page keeps the template's goals and does not get the form
+   goal an authored page gets.
+7. `publish_page` when the user asks.
+
 **An existing page**
 
 1. `list_client_pages` with `builder: "ai_builder"`, then `list_page_variants`.
@@ -139,8 +174,9 @@ Set the page's SEO title, description and social card with `set_page_metadata`
 at any point before publishing (see "Page metadata" below).
 
 Set what counts as a conversion with `set_conversion_goals` before publishing
-(see "Conversion goals" below). A page created here that has a form already
-counts the form.
+(see "Conversion goals" below). A page created here from a document that has a
+form already counts the form; a page created from a template has the template's
+goals.
 
 **An A/B test**
 
@@ -182,7 +218,10 @@ letter it names has no content: remove it with `delete_variant` before retrying.
 already set that list. The published form then posts to `/fsg` and counts. An
 explicit empty `activeGoals` is left alone. A variant authored with
 `create_ai_builder_variant` takes the champion's goals instead, and this form
-default only when the champion has none (see "An A/B test" above).
+default only when the champion has none (see "An A/B test" above). A page
+created from a template is not given this default either: it keeps whatever
+goals the template stores, which `get_ai_builder_document`'s `conversion_goals`
+shows.
 
 To turn the form off, or to count a link, a phone number, or a lightbox, call
 `set_conversion_goals` with the **complete** set (`form_submission` and
@@ -457,15 +496,25 @@ it. Runtime specifics are in `detail`.
 - `create-ai-builder-page.duplicate-id` — two components share an
   `attributes.id`; `detail` names each id and where. Give each component its
   own id and retry. No page was created.
-- `create-ai-builder-page.create-failed` — the create failed unexpectedly. Check
-  `list_client_pages` (`builder: "ai_builder"`) for a new empty page before
-  retrying, so a retry does not leave a duplicate.
+- `create-ai-builder-page.create-failed` — the create failed unexpectedly, and
+  may still have made the page. Check `list_client_pages`
+  (`builder: "ai_builder"`) before retrying: from a document the page is empty,
+  from a template it already holds the template's content. Remove it or use it,
+  so a retry does not leave a duplicate.
 - `create-ai-builder-page.content-write-failed` — the page exists but holds no
   content; `detail` names it. Remove it with `delete_page` before retrying, or
   you leave a duplicate.
 - `create-ai-builder-page.style-guide-unavailable` — no usable style guide
   resolved. Omit `style_guide_id`, or pass the one `get_ai_builder_catalog`
   returns.
+- `create-ai-builder-page.template-unavailable` — `template` is not the uuid of
+  a usable template. Pick one from `list_ai_builder_templates` and pass its
+  `uuid`, not its name. No page was created.
+- `create-ai-builder-page.theme-with-template` — `theme` was passed with
+  `template`. Create the page without it, then `set_theme` with
+  `edit_ai_builder_page`.
+- `create-ai-builder-page.bad-document-source` — pass exactly one of
+  `template`, `document` and `document_ref`.
 
 **The plan** — a retry does not change these. Both come before anything is
 uploaded or created.
