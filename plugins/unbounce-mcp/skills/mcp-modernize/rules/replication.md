@@ -69,7 +69,7 @@ source has no `:hover` rule, the rewrite has none.
 ## Forms
 
 Write a plain `<form>`; `update_variant_from_html` wires submission (identity
-fields, honeypot, confirmation) on write — never hand-build that wiring.
+fields, confirmation) on write — never hand-build that wiring.
 Preserve exactly: every field name (renaming silently breaks the lead-data
 pipeline), type, required-ness, order, every select's options in order, and the
 submit button label verbatim. If the copy carries a hidden form-confirmation
