@@ -599,10 +599,23 @@ stated style) and read **only** `design-systems/<slug>.md` for it — never more
 than one per page, and never load them all. Skip them entirely when the user
 has given a clear direction of their own.
 
-**Applying a system on this route.** A page here is pinned to the client's
-style guide; there is no way to apply a design system's own style-guide map.
-The page theme sets the user's own colours and fonts, not the system's. So
-translate, following "Styling" above:
+**Applying a system.** Pass its slug as `create_ai_builder_page`'s
+`base_design_system` and the whole variable map is themed onto the page —
+colours, fonts, spacing, radii — filtered to what the page's style guide can
+take, with anything it cannot take named in `design_system_dropped`. This is
+the route to use: it is the single biggest difference between a generated page
+and a designed one.
+
+The **identity still stays the user's**. `theme` is applied _over_ the map, so
+a brand colour or typeface the user named wins, and what it replaced comes
+back in `design_system_overridden`. Where the user has given a direction, set
+it in `theme` and let the system supply the rest.
+
+`base_design_system` cannot be combined with `template`, which brings its own
+look. Set the theme afterwards with `edit_ai_builder_page`'s `set_theme`.
+
+**Where you are still translating by hand** — an edit to an existing page, or
+a dimension the map does not carry — follow "Styling" above:
 
 - **Type scale, weights, spacing, radii, shadows:** for each role the reference
   describes (display heading, body, section padding, card radius, …), use the
