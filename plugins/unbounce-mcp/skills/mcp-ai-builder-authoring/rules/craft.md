@@ -123,11 +123,20 @@ feeling professional.
 
 - Prefer the client's own images: `list_assets` returns the client's asset
   library with a hosted `cdn_url` per image.
-- Otherwise use Unsplash photography — a direct `images.unsplash.com` image URL
-  that fits the subject — for every image the client's assets do not cover:
-  hero images, product shots, testimonial avatars, and backgrounds. Nothing on
-  this route checks that an image URL loads, so check it yourself — fetch it
-  and confirm it returns an image — and if you cannot, say so to the user.
+- Otherwise use `search_images` for every image the client's assets do not
+  cover: hero images, product shots, testimonial avatars, and backgrounds. It
+  returns a real Unsplash photograph with the photographer credit the licence
+  requires. Keep the `data-unsplash-*` attributes it returns on the component,
+  because the write tools read `data-unsplash-id` to make Unsplash's usage ping.
+  **Never invent an `images.unsplash.com` URL** — the ids are opaque, so a
+  made-up one publishes as a broken image.
+- **If `search_images` reports that search is not configured** (`source` is
+  `curated_default` with a `warnings` entry saying so), it is returning one of a
+  few neutral pictures rather than anything about the subject, and a page with
+  several image slots would get the same picture more than once. Fall back to a
+  direct `images.unsplash.com` URL that fits the subject, as before, and check
+  it loads — fetch it and confirm it returns an image — saying so to the user if
+  you cannot. Prefer the searched photo whenever search is working.
 - Every image gets a descriptive `alt`. Never keep a component's default image,
   leave a slot empty, or fall back to a grey box or placeholder service. A
   component with an image slot is not finished until its image is set — through
