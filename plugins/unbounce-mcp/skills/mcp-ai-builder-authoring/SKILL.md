@@ -332,6 +332,28 @@ same thing; never children that disagree with it. A stat item:
   label renders twice. What the published page shows is the button's `text`,
   which the tools set from `data-label` on create, `insert` and `update`,
   with `aria-label` beside it. Removing `data-label` clears both.
+- **Use `ub-form-inline` for a lead-capture form.** It is what the AI builder's
+  own Lead Capture inserts; the older `ub-form` container still works and is
+  named in `warnings`. A form submits into a confirmation dialog
+  (`ub-form-lightbox-dialog-thankyou`), which `ub-form-inline`'s own defaults
+  place immediately before its `ub-form-button`. Write that dialog among the
+  form's children, with no children of its own — its panel is a part the editor
+  builds from the type's defaults, and children written into it arrive untyped,
+  so a visitor can delete the panel or drop anything into it. A form written
+  without one is given one, listed in `confirmation_dialogs_added`; a form sent
+  with no `components` at all keeps the type's defaults, which already carry it.
+- **One form per page.** A landing page converts on a single call to action, and
+  a second form splits it. Two or more are named in `warnings` rather than
+  refused — write one unless the page genuinely needs two.
+- **The write tools grade the page.** `create_ai_builder_page` and
+  `edit_ai_builder_page` return non-fatal `warnings` for the things that make a
+  generated page look generated: no image anywhere on the page, demo content
+  the catalog ships left in place, three or more ready-made section components
+  in a row, a submit button set to show a confirmation dialog its form does not
+  have, and a `styles` array anywhere but the document root. None of them fails
+  the write — treat them as a punch list before handing the page over. On an
+  edit they cover what that batch wrote, not the whole page, and missing
+  imagery is only judged on create.
 - **List-encoded traits** (`data-features` on a pricing card, `data-links` on a
   navbar or footer) hold every item in one value. Change an item by setting
   the whole trait with `update`, not by editing the rendered item. For a
